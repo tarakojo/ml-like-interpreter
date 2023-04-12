@@ -1,0 +1,2 @@
+exampleParser.cmi : \
+    syntax.cmo

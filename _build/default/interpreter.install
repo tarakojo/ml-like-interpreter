@@ -1,0 +1,8 @@
+lib: [
+  "_build/install/default/lib/interpreter/META"
+  "_build/install/default/lib/interpreter/dune-package"
+  "_build/install/default/lib/interpreter/opam"
+]
+bin: [
+  "_build/install/default/bin/interpreter"
+]

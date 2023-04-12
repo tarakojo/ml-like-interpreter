@@ -1,0 +1,633 @@
+練習問題2.1
+1 : 1
+2 : 1
+3 : -2
+4 : 8
+
+練習問題2.2
+1 : float 5.5
+2 : int 0 
+3 : char 'U'
+4 : int 255 
+5 : float 25
+
+練習問題2.3
+1 : *- という未定義の演算子に認識される
+2 : 0xfgは有効な16進数表記でない
+3 : -が二項演算子として認識される
+
+練習問題2.4 
+1 : float_of_int (int_of_float 5.0)
+2 : sin (3.14 /. 2.0) ** 2.0 +. cos (3.14 /. 2.0) ** 2.0 
+3 : int_of_float (sqrt (float_of_int (3 * 3 + 4 * 4)))
+
+練習問題2.5
+a_2' 
+_'_'_
+
+練習問題3.1
+
+let function1 dollar = 
+     int_of_float (floor(dollar *. 114.32 +. 0.5))  
+
+let function2 yen = 
+    let x = float_of_int yen /. 114.32 in 
+    let y = x *. 10.0 in 
+    let z = floor (y +. 0.5) in 
+    z /. 10.0 
+
+let function3 dollar = 
+  string_of_float dollar ^ " dollars are " ^ string_of_int (function1 dollar) ^ " yen."
+
+let capitalize c = 
+    if 'a' <= c && c <= 'z' then 
+      let d = int_of_char 'A' - int_of_char 'a' in 
+      char_of_int (int_of_char c + d)
+    else c 
+
+練習問題3.2 
+1 : if b1 then b2 else false 
+2 : if b1 then true else b2 
+
+練習問題3.3 
+1 : not (not b1 || not b2)
+2 : not (not b1 && not b2)
+
+練習問題3.4
+1 :  let x = 1 in 
+     let x = 3 in 
+     let x = x + 2 in (２行目のxを参照) 
+     x * x            (３行目のxを参照)
+     (結果 int 25)
+
+2 : let x = 2 and y = 3 in 
+    (
+      let y = x and (１行目のxを参照) 
+      x = y + 2 in  (１行目のyを参照)
+      x * y         (３行目のy, 4行目のxを参照)
+    ) + y           (１行目のyを参照)
+    (結果 int 13)
+
+3 : let x = 2 in let y = 3 in 
+    let y = x in    (1行目のxを参照) 
+    let z = y + 2   (2行目のyを参照)
+    in x * y * z    (１行目のx,２行目のy,３行目のzを参照)
+    (結果 int 16)
+
+練習問題3.5
+"let x = e1 and y = e2"の場合、 
+e2内でxを参照すると、"x = e1"より前に宣言されたxを参照する。
+"let x = e1 let y = e2"の場合、
+e2内でxを参照すると、直前に宣言されたxを参照する。
+
+練習問題3.6
+1 : 
+let geo_mean (x, y) = sqrt(x *. y)
+
+2 :
+let bmi (name, height, weight) = 
+    let bmi = weight /. height in 
+    if bmi < 18.5 then name^"さんはやせています"
+    else if bmi < 25.0 then name^"さんは標準です"
+    else if bmi < 30.0 then name^"さんは肥満です"
+    else name^"さんは高度肥満です"
+
+3 : 
+let f (a, b) = 
+    let x = (a + b) / 2 in 
+    let y = (a - b) / 2 in 
+    (x, y)
+
+
+練習問題3.7
+let rec pow1 (x, n) = 
+  if n = 0 then 1.0 
+  else x *. pow1(x, n-1)
+
+let rec pow2 (x, n) = 
+    if n = 0 then 1.0 
+    else if n mod 2 = 0 then pow2(x *. x, n / 2)
+    else x *. pow2(x *. x, n / 2)
+
+
+練習問題3.8
+(* x ^ n = iterpow(x, n, 0, 1.0) *)
+let rec iterpow (x, n, i,  res) = 
+    if i = n then res 
+    else iterpow (x,  n,i + 1, x *. res)
+
+
+練習問題3.9
+関数を値呼びで評価するので、
+fact n = cond((x = 1) , 1, n * fact(n-1))において、
+condが評価される前に fact(n-1)が評価され、
+nが0未満になってもfactが評価され続ける
+
+
+練習問題3.10
+
+fib 4 --> if 4 = 1 || 4 = 2 then 1 else fib(4 - 1) + fib(4 - 2)
+      --> fib (4 - 1) + fib(4 - 2)
+      --> fib 3 + fib(4 - 2)
+      --> ... --> (fib 2 + fib 1) + fib(4 - 2)
+      --> ... --> (1 + fib 1) + fib(4 - 2)
+      --> ... --> (1 + 1) + fib(4 - 2) 
+      --> ... --> 2 + fib(4 - 2)
+      --> ... --> 2 + fib2 
+      --> ... --> 2 + 1 
+      --> ... --> 3
+
+練習問題3.11
+
+let rec gcd (x, y) = 
+    if y = 0 then x 
+    else gcd (y, x mod y)
+
+let rec comb (n, m) = 
+    if m = 0 || m = n then 1 
+    else comb(n-1, m) + comb(n-1, m-1)
+
+(* fib n = iterfib(n, 1, 1, 0) *)
+let rec iterfib(n, i, x, y) = 
+    if n = i then x 
+    else iterfib(n, i + 1, x + y, x)
+
+let max_ascii s = 
+    let chars = List.init (String.length s) (String.get s) in 
+    List.fold_left max (String.get s 0) chars 
+
+
+練習問題3.12
+
+let rec pos n =
+    let n' = n - 1 in 
+    let neg = 
+      if n' < 0 then 0.0
+      else pos n' -. 1.0 /. (float_of_int (4 * n' + 3)) in 
+
+    neg +. 1.0 /. (float_of_int (4 * n + 1))
+  
+
+
+練習問題3.13
+
+let rec pow n x = 
+    if n = 0 then 1.0 
+    else if n mod 2 = 0 then pow2 (n / 2) (x *. x)
+    else x *. (pow2 (n / 2) (x *. x))
+
+let cube = pow 3
+
+
+練習問題3.14
+
+let integral f a b = 
+  let n = 10000000 in 
+  let delta = (b -. a) /. (float_of_int n) in 
+  let rec loop i sum = 
+      let left = a +.  float_of_int (i - 1) *. delta in 
+      let right = a +. float_of_int i *. delta in 
+      let f_left = f left in 
+      let f_right = f right in 
+      let s = (f_left +. f_right) *. delta /. 2.0 in 
+      let sum = s +. sum in 
+      if i = n then sum 
+      else loop (i + 1) sum  in 
+  loop 1 0.0 
+
+integral sin 0.0 3.1415926535 
+--> 2.00000000000007594
+
+
+練習問題3.15
+
+int -> int -> int -> int   整数を３つとって、整数を返す関数
+let f1 x y z = x + y + z 
+
+
+(int -> int) -> int -> int  「整数を一つとって整数を返す関数」と整数を一つとって整数を返す関数
+let f2 g x = g x 
+
+
+(int -> int -> int) -> int 「整数を二つとって整数を返す関数」をとって整数を返す関数
+let f3 h = h 100 200 
+
+
+練習問題4.1
+
+let uncurry f (x, y) = f x y 
+
+
+練習問題4.2
+
+let fib n = 
+    let (fibn , _) = repeat (fun (x, y) -> (x+y, x)) (n-1) (1, 0)
+in fibn
+
+
+練習問題4.3 
+関数f(x)を受け取り、関数(f^n)(x)を返す
+
+
+練習問題4.4
+s k k 1 --> k 1 (k 1)
+        --> 1 
+
+
+練習問題4.5 
+twice twice f x --> twice (twice f) x 
+                --> (twice f) ((twice f) x)
+                --> (twice f) (f (f x)) 
+                --> f (f (f (f x)))
+
+練習問題4.6 
+k (s k k)
+
+
+練習問題5.1
+1 : 'a list list 
+2 : 整数リストと文字列リストを含むことのできるリスト型はない
+3 : int list list 
+4 : [3] :: [] はint list listであるので、2を先頭に付加できない
+5 : 'a list list 
+6 : (bool -> bool) list 
+
+
+練習問題5.2 
+
+
+let rec downto1 n = 
+    if n <= 1 then [1] 
+    else n :: downto1 (n-1)
+
+let rec roman lis n = 
+  match lis with 
+  | [] -> "" 
+  | (m, _) :: tl when m > n -> roman tl n 
+  | (m, s) :: _ -> s ^ roman lis (n - m) 
+
+
+let nested_length l =
+  List.fold_left (fun sum lis -> sum + List.length lis) 0 l 
+
+let concat l = List.fold_right (@) l [] 
+
+let rec zip l1 l2 = 
+  match (l1, l2) with
+  | ([], _) 
+  | (_, []) -> [] 
+  | (h1 :: t1,h2 :: t2) -> (h1, h2) :: zip t1 t2  
+
+let rec unzip l = 
+  match l with 
+  | [] -> ([], [])
+  | (a, b) :: tl -> 
+      let (al, bl) = unzip tl in 
+      (a :: al, b :: bl)
+
+let rec filter p l = 
+    match l with 
+    | [] -> [] 
+    | hd :: tl when p hd -> hd :: filter p tl 
+    | _ :: tl -> filter p tl 
+
+let rec take n l = 
+    match l with
+    | _ when n = 0 -> [] 
+    | [] -> [] 
+    | hd :: tl -> hd :: take (n-1) tl
+
+let rec drop n l = 
+    match l with
+    | _ when n = 0 -> l 
+    | [] -> [] 
+    | _ :: tl -> drop (n-1) tl 
+
+let max_list l = List.fold_left max Int.min_int l 
+
+
+練習問題5.3
+
+let rec mem a s = 
+  match s with 
+  | [] -> false 
+  | x :: xs when x = a -> true 
+  | _ :: xs -> mem a xs 
+
+let intersect s1 s2 = List.filter (fun a -> mem a s2) s1 
+
+let diff s1 s2 = List.filter (fun a -> not (mem a s2)) s1 
+
+let union s1 s2 = s1 @ diff s2 s1 
+
+
+練習問題5.4 
+map(fun x -> f (g x)) l 
+
+
+練習問題5.5 
+
+let concat l = List.fold_right (@) l [] 
+let forall p l = List.fold_right (fun x y -> y && p x) l true  
+let exists p l = List.fold_right (fun x y -> y || p x) l false
+
+
+練習問題5.7
+
+let squares r = 
+    let rec loopy y = 
+      if y * y * 2 > r then [] 
+      else  
+        let rec loopx x = 
+          let v = x * x + y * y in 
+          if v < r then loopx (x + 1) 
+          else if v = r then x 
+          else -1 
+        in 
+        let x = loopx y in 
+        if x = -1 then loopy (y + 1)
+        else (x, y) :: loopy (y + 1) 
+      in loopy 0 
+
+
+練習問題5.8
+
+let map2 f lis = 
+  let revmap g lis = 
+    let rec loop lx ly = 
+      match lx with
+      | [] -> ly 
+      | x :: xs -> loop xs (g x :: ly) in 
+    loop lis [] 
+    in 
+  revmap (fun x -> x) (revmap f lis)
+
+
+練習問題6.1
+
+let similar x y = 
+  match (x, y) with
+  | (Point, Point)
+  | (Circle _, Circle _) 
+  | (Square _, Square _) -> true 
+  | (Rectangle(x1, x2), Rectangle(y1, y2)) when x1 * y2 = x2 * y1 -> true 
+  | (Rectangle(x1, x2), Rectangle(y1, y2)) when x1 * y1 = x2 * y2 -> true 
+  | (Square _, Rectangle(x1,x2)) when x1 = x2 -> true
+  | (Rectangle(x1,x2), Square _) when x1 = x2 -> true
+  | _ -> false
+
+
+
+練習問題6.2
+
+  let overlap f1 f2 =
+    let rect_tuple = function 
+    | { loc_x = x; loc_y = y; body = Square l } -> (x, y, float_of_int l, float_of_int l) 
+    | { loc_x = x; loc_y = y; body = Rectangle(lx, ly)} -> (x, y, float_of_int lx, float_of_int ly)
+    | { loc_x = x; loc_y = y; body = Point} -> (x, y, 0.0, 0.0)
+    | _ -> failwith "unreachable" in 
+
+    let circle_tuple = function
+    | { loc_x = x; loc_y = y; body = Circle r} -> (x, y, float_of_int r) 
+    | { loc_x = x; loc_y = y; body = Point} -> (x, y, 0.0) 
+    | _ -> failwith "unreachable" in 
+
+    let rect_rect (x1, y1, lx1, ly1) (x2, y2, lx2, ly2) = 
+        abs_float (x1 -. x2) <= (lx1 +. lx2) /.2.0 &&
+        abs_float (y1 -. y2) <= (ly1 +. ly2) /.2.0 in 
+
+    let circle_circle (x1, y1, r1) (x2, y2, r2) = 
+        let dx = x1 -. x2 in 
+        let dy = y1 -. y2 in 
+        let r = r1 +. r2 in 
+        dx *. dx +. dy *. dy <= r *. r in 
+
+    let circle_rect (cx, cy, cr) (x, y, lx, ly) = 
+      let point_rect = rect_rect (cx, cy, 0.0, 0.0) in 
+      let point_circle = circle_circle (cx, cy, 0.0) in 
+      let lx_half = lx /. 2.0 in 
+      let ly_half = ly /. 2.0 in 
+      point_rect (x, y, lx +. 2.0 *. cr, ly) || 
+      point_rect (x, y, lx, ly +. 2.0 *. cr) || 
+      point_circle (x -. lx_half, y -. ly_half, cr) || 
+      point_circle (x -. lx_half, y +. ly_half, cr) || 
+      point_circle (x +. lx_half, y -. ly_half, cr) || 
+      point_circle (x +. lx_half, y +. ly_half, cr) in 
+    
+    match (f1.body, f2.body) with 
+    | (Circle _, Square _) 
+    | (Circle _, Rectangle _) -> circle_rect (circle_tuple f1) (rect_tuple f2)
+    | (Square _, Circle _) 
+    | (Rectangle _, Circle _) -> circle_rect (circle_tuple f2) (rect_tuple f1) 
+    | (Point, Circle _)
+    | (Circle _, Point)
+    | (Circle _, Circle _) -> circle_circle (circle_tuple f1) (circle_tuple f2)
+    | _ -> rect_rect (rect_tuple f1) (rect_tuple f2)
+
+
+練習問題6.3
+
+let rec add m n =
+  match m with Zero -> n | OneMoreThan m' -> OneMoreThan (add m' n)
+
+let rec mul m n = 
+  match m with Zero -> Zero | OneMoreThan m' -> add n (mul m' n)
+
+let rec monus m n = 
+  match (m, n) with
+  | (_, Zero) -> m 
+  | (Zero, _) -> Zero
+  | (OneMoreThan m', OneMoreThan n') -> monus m' n' 
+  
+
+練習問題6.4
+
+let rec minus m n = 
+  match (m, n) with
+  | (_, Zero) -> Some m 
+  | (Zero, OneMoreThan _) -> None
+  | (OneMoreThan m', OneMoreThan n') -> minus m' n' 
+
+
+練習問題6.5
+type 'a tree = Lf | Br of 'a * 'a tree * 'a tree
+
+let rec comptree x n = 
+  if n = 0 then Lf 
+  else Br (x, comptree x (n-1), comptree x (n-1))
+
+let comptree' n = 
+  let rec f depth m = 
+    if depth > n then Lf 
+    else Br(m, f (depth+1) (2*m), f (depth+1) (2*m+1))
+  in f 1 1 
+
+
+練習問題6.6
+
+let rec inord t = 
+  match t with
+  | Lf -> [] 
+  | Br(x, lt, rt) -> 
+    inord lt @ [x] @ inord rt
+
+let rec postord t = 
+  match t  with
+  | Lf -> [] 
+  | Br(x, lt, rt) -> 
+    postord lt @ postord rt @ [x] 
+
+
+練習問題6.7
+let rec reflect t = 
+  match t with
+  | Lf -> Lf 
+  | Br(x, lt, rt) -> 
+    Br(x, reflect rt, reflect lt)
+
+preorder(reflect(t)) = List.reverse(postord(t))
+inorder(reflect(t)) = List.reverse(inord(t))
+postorder(reflect(t)) = List.reverse(preorder(t))
+
+
+
+練習問題6.8
+
+let rec rtreelist_of_tree t = 
+  match t with 
+  | Br(None, _, Lf) -> [ RLf ] 
+  | Br(None, _, right) -> RLf :: rtreelist_of_tree right
+  | Br(Some x, left, Lf) -> [RBr(x, rtreelist_of_tree left)]
+  | Br(Some x, left, right) -> RBr(x, rtreelist_of_tree left) :: rtreelist_of_tree right 
+and rtree_of_tree t = List.hd (rtreelist_of_tree t)
+
+
+練習問題6.9
+
+type ('a, 'b) xml = XLf of 'b option | XBr of 'a * ('a, 'b) xml list
+type token = PCDATA of string | Open of string | Close of string
+
+let rec f tokens tags brothers = 
+    match (tokens, tags, brothers) with 
+    | (Open tag :: tokens', _, _) -> f tokens' (tag :: tags) ([] :: brothers)
+    | (PCDATA data :: tokens', _, b :: bs) -> f tokens' tags ((XLf (Some data) :: b) :: bs)
+    | (Close tag :: tokens', t :: ts, b :: bp :: bs) when tag = t -> 
+        if List.length b = 0 then f tokens' ts ((XBr (tag, [XLf None]) :: bp) :: bs)
+        else f tokens' ts ((XBr (tag, List.rev b) :: bp) :: bs)
+    | ([], [], [[x]]) -> x 
+    | _ -> failwith "error"
+
+and xml_of_tokens tokens = f tokens [] [[]]
+
+
+練習問題6.10
+
+type arith =
+Const of int | Add of arith * arith | Mul of arith * arith
+
+let rec eval e = 
+    match e with 
+    | Const x -> x 
+    | Add (e1, e2) -> eval e1 + eval e2 
+    | Mul (e1, e2) -> eval e1 * eval e2 
+type arith =
+
+
+練習問題6.11
+
+
+let rec string_of_arith e = 
+    match e with 
+    | Const x -> string_of_int x 
+    | Add (e1, e2) -> "(" ^ string_of_arith e1 ^ "+" ^ string_of_arith e2 ^ ")"
+    | Mul (e1, e2) -> "(" ^ string_of_arith e1 ^ "*" ^ string_of_arith e2 ^ ")"
+
+    
+
+let rec expand e = 
+    match e with
+    | Const _ -> e 
+    | Add (e1, e2) -> Add (expand e1, expand e2) 
+    | Mul (e1, e2) -> distribute (expand e1) (expand e2)
+
+and distribute e1 e2 = 
+    let rec list_of_add e = 
+        match e with
+        | Const _ -> [e] 
+        | Mul _ -> [e]
+        | Add (x, y) -> list_of_add x @ list_of_add y 
+    in 
+    let rec add_all es = 
+        match es with
+        | e :: [] -> e 
+        | e :: es' -> Add(e, add_all es')
+        | _ -> failwith "unreachable"
+    in 
+    let l1 = list_of_add e1 in 
+    let l2 = list_of_add e2 in 
+    add_all(List.flatten (List.map (fun x -> List.map (fun y -> Mul(x,y)) l1) l2))
+
+
+
+練習問題6.12
+
+1->2->3->4
+      1
+     /
+    2
+   /
+  3
+ / 
+4
+
+
+2->1->3->4
+  2
+ / \
+1   3
+     \ 
+      4 
+
+
+2->1->4->3
+  2
+ / \
+1   4
+   /
+  3
+
+
+3->1->2->4
+  3
+ / \
+1   4
+ \
+  2
+
+
+3->2->1->4
+    3
+   / \
+  2   4
+ /
+1
+
+
+4->3->2->1
+4
+ \
+  3
+   \
+    2
+     \ 
+      1
+
+
+練習問題6.13
+
+type intseq = Cons of int * (int -> intseq)
+
+let rec f n x = 
+    Cons(n + x, f x) 
+    
+let fib = f 1 0 

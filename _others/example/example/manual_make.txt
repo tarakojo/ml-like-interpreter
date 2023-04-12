@@ -1,0 +1,8 @@
+ocamlyacc exampleParser.mly 
+ocamllex exampleLexer.mll
+ocamlc -c syntax.ml
+ocamlc -c exampleParser.mli
+ocamlc -c exampleParser.ml
+ocamlc -c exampleLexer.ml
+ocamlc -c example.ml
+ocamlc -o example syntax.cmo exampleParser.cmo exampleLexer.cmo example.cmo
