@@ -6,6 +6,10 @@ type expr = EValue of value
           | EEq of expr * expr 
           | ELt of expr * expr 
           | EIf of expr * expr * expr 
+          | EVar of string
+          | ELet of string * expr * expr 
 
 type command = CExp of expr
-
+             | CLet of string * expr
+   
+             
