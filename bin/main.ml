@@ -1,14 +1,25 @@
 
 open Interpreter
+open Syntax
+
+let rec interactiveMode () = 
+    let lexbuf = Lexing.from_channel stdin in 
+    let c = Parser.parseCommand Lexer.tokenize lexbuf in 
+    (match c with 
+    | CExp e -> 
+      Print.printValue (Eval.eval e); print_newline() ); interactiveMode()
+let fileMode path = 
+    let lexbuf = Lexing.from_channel (open_in path) in 
+    let e = Parser.parseExpr Lexer.tokenize lexbuf in 
+    Print.printValue (Eval.eval e); print_newline()
 
 let () = 
-  try 
-    let lexbuf = Lexing.from_channel stdin in 
-    let v = Parser.parseExpr Lexer.tokenize lexbuf in 
-    (match Eval.eval v with
-    | VInt x -> print_int x 
-    | VBool b -> print_string (if b then "true" else "false"))
-    ; print_newline() 
-  with
-    | Parsing.Parse_error -> 
-        print_endline "parse error" 
+    try 
+      if Array.length Sys.argv <= 1 then 
+        interactiveMode() 
+      else
+        fileMode (Sys.argv.(1)) 
+        
+    with
+    | Parsing.Parse_error -> failwith "parse error"
+    | _ -> failwith "error"

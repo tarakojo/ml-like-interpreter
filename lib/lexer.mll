@@ -17,5 +17,8 @@ rule tokenize = parse
 |   "if" {IF}
 |   "then" {THEN}
 |   "else" {ELSE}
+|   "(" {LPAREN}
+|   ")" {RPAREN}
+|   ";;" {DOUBLE_SEMI}
 |   eof {EOF}
 |   _ {failwith "invalid token"}

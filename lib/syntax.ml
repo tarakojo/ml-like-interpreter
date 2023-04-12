@@ -6,3 +6,6 @@ type expr = EValue of value
           | EEq of expr * expr 
           | ELt of expr * expr 
           | EIf of expr * expr * expr 
+
+type command = CExp of expr
+

@@ -7,6 +7,8 @@ open Syntax
 %token EQ LT 
 %token TRUE FALSE
 %token IF THEN ELSE 
+%token LPAREN RPAREN
+%token DOUBLE_SEMI
 %token EOF
 
 %nonassoc ELSE
@@ -14,13 +16,17 @@ open Syntax
 %left ADD SUB 
 %left MUL DIV
 
-%start parseExpr
-%type <Syntax.expr> parseExpr
+%start<Syntax.expr> parseExpr
+%start<Syntax.command> parseCommand
+
 
 %% 
 
 parseExpr : 
     expression EOF {$1}
+;
+parseCommand : 
+    expression DOUBLE_SEMI { CExp ($1) }
 ;
 expression : 
     INT { EValue(VInt($1)) }
@@ -33,4 +39,5 @@ expression :
 |   expression EQ expression { EEq ($1, $3) }
 |   expression LT expression { ELt ($1, $3) }
 |   IF expression THEN expression ELSE expression { EIf ($2, $4, $6) }
+|   LPAREN expression RPAREN { $2 }
 ;
