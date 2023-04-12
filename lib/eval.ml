@@ -3,12 +3,6 @@ open Syntax
 exception Eval_error 
 
 
-let printEnv env = 
-  print_string "[";
-  List.iter (fun (x, v) -> print_string "(" ; print_string x; print_string "," ; Print.printValue v; print_string ")") env;
-  print_string "]"
-
-
 let rec eval env e = 
   let getint v = 
     match v with
