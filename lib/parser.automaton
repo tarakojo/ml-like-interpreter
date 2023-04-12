@@ -1,0 +1,713 @@
+State 0:
+## Known stack suffix:
+##
+## LR(1) items:
+parseCommand' -> . parseCommand [ # ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On LET shift to state 40
+-- On INT shift to state 7
+-- On IF shift to state 8
+-- On FUN shift to state 9
+-- On FALSE shift to state 12
+-- On parseCommand shift to state 45
+-- On expression shift to state 46
+-- On expr3 shift to state 14
+-- On expr2 shift to state 15
+-- On expr1 shift to state 17
+## Reductions:
+
+State 1:
+## Known stack suffix:
+## TRUE
+## LR(1) items:
+expr3 -> TRUE . [ TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+## Reductions:
+-- On TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD
+--   reduce production expr3 -> TRUE
+
+State 2:
+## Known stack suffix:
+## LPAREN
+## LR(1) items:
+expr3 -> LPAREN . expression RPAREN [ TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On LET shift to state 4
+-- On INT shift to state 7
+-- On IF shift to state 8
+-- On FUN shift to state 9
+-- On FALSE shift to state 12
+-- On expression shift to state 38
+-- On expr3 shift to state 14
+-- On expr2 shift to state 15
+-- On expr1 shift to state 17
+## Reductions:
+
+State 3:
+## Known stack suffix:
+## LOWER_IDENT
+## LR(1) items:
+expr3 -> LOWER_IDENT . [ TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+## Reductions:
+-- On TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD
+--   reduce production expr3 -> LOWER_IDENT
+
+State 4:
+## Known stack suffix:
+## LET
+## LR(1) items:
+expression -> LET . LOWER_IDENT EQ expression IN expression [ THEN RPAREN IN EOF ELSE DOUBLE_SEMI ]
+## Transitions:
+-- On LOWER_IDENT shift to state 5
+## Reductions:
+
+State 5:
+## Known stack suffix:
+## LET LOWER_IDENT
+## LR(1) items:
+expression -> LET LOWER_IDENT . EQ expression IN expression [ THEN RPAREN IN EOF ELSE DOUBLE_SEMI ]
+## Transitions:
+-- On EQ shift to state 6
+## Reductions:
+
+State 6:
+## Known stack suffix:
+## LET LOWER_IDENT EQ
+## LR(1) items:
+expression -> LET LOWER_IDENT EQ . expression IN expression [ THEN RPAREN IN EOF ELSE DOUBLE_SEMI ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On LET shift to state 4
+-- On INT shift to state 7
+-- On IF shift to state 8
+-- On FUN shift to state 9
+-- On FALSE shift to state 12
+-- On expression shift to state 35
+-- On expr3 shift to state 14
+-- On expr2 shift to state 15
+-- On expr1 shift to state 17
+## Reductions:
+
+State 7:
+## Known stack suffix:
+## INT
+## LR(1) items:
+expr3 -> INT . [ TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+## Reductions:
+-- On TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD
+--   reduce production expr3 -> INT
+
+State 8:
+## Known stack suffix:
+## IF
+## LR(1) items:
+expression -> IF . expression THEN expression ELSE expression [ THEN RPAREN IN EOF ELSE DOUBLE_SEMI ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On LET shift to state 4
+-- On INT shift to state 7
+-- On IF shift to state 8
+-- On FUN shift to state 9
+-- On FALSE shift to state 12
+-- On expression shift to state 30
+-- On expr3 shift to state 14
+-- On expr2 shift to state 15
+-- On expr1 shift to state 17
+## Reductions:
+
+State 9:
+## Known stack suffix:
+## FUN
+## LR(1) items:
+expression -> FUN . LOWER_IDENT RIGHT_ARROW expression [ THEN RPAREN IN EOF ELSE DOUBLE_SEMI ]
+## Transitions:
+-- On LOWER_IDENT shift to state 10
+## Reductions:
+
+State 10:
+## Known stack suffix:
+## FUN LOWER_IDENT
+## LR(1) items:
+expression -> FUN LOWER_IDENT . RIGHT_ARROW expression [ THEN RPAREN IN EOF ELSE DOUBLE_SEMI ]
+## Transitions:
+-- On RIGHT_ARROW shift to state 11
+## Reductions:
+
+State 11:
+## Known stack suffix:
+## FUN LOWER_IDENT RIGHT_ARROW
+## LR(1) items:
+expression -> FUN LOWER_IDENT RIGHT_ARROW . expression [ THEN RPAREN IN EOF ELSE DOUBLE_SEMI ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On LET shift to state 4
+-- On INT shift to state 7
+-- On IF shift to state 8
+-- On FUN shift to state 9
+-- On FALSE shift to state 12
+-- On expression shift to state 13
+-- On expr3 shift to state 14
+-- On expr2 shift to state 15
+-- On expr1 shift to state 17
+## Reductions:
+
+State 12:
+## Known stack suffix:
+## FALSE
+## LR(1) items:
+expr3 -> FALSE . [ TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+## Reductions:
+-- On TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD
+--   reduce production expr3 -> FALSE
+
+State 13:
+## Known stack suffix:
+## FUN LOWER_IDENT RIGHT_ARROW expression
+## LR(1) items:
+expression -> FUN LOWER_IDENT RIGHT_ARROW expression . [ THEN RPAREN IN EOF ELSE DOUBLE_SEMI ]
+## Transitions:
+## Reductions:
+-- On THEN RPAREN IN EOF ELSE DOUBLE_SEMI
+--   reduce production expression -> FUN LOWER_IDENT RIGHT_ARROW expression
+
+State 14:
+## Known stack suffix:
+## expr3
+## LR(1) items:
+expr2 -> expr3 . [ TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+## Reductions:
+-- On TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD
+--   reduce production expr2 -> expr3
+
+State 15:
+## Known stack suffix:
+## expr2
+## LR(1) items:
+expr1 -> expr2 . [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr2 -> expr2 . expr3 [ TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On INT shift to state 7
+-- On FALSE shift to state 12
+-- On expr3 shift to state 16
+## Reductions:
+-- On THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD
+--   reduce production expr1 -> expr2
+
+State 16:
+## Known stack suffix:
+## expr2 expr3
+## LR(1) items:
+expr2 -> expr2 expr3 . [ TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+## Reductions:
+-- On TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD
+--   reduce production expr2 -> expr2 expr3
+
+State 17:
+## Known stack suffix:
+## expr1
+## LR(1) items:
+expr1 -> expr1 . ADD expr2 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr1 -> expr1 . SUB expr2 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr1 -> expr1 . MUL expr2 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr1 -> expr1 . DIV expr2 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr1 -> expr1 . EQ expr1 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr1 -> expr1 . LT expr1 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expression -> expr1 . [ THEN RPAREN IN EOF ELSE DOUBLE_SEMI ]
+## Transitions:
+-- On SUB shift to state 18
+-- On MUL shift to state 20
+-- On LT shift to state 22
+-- On EQ shift to state 28
+-- On DIV shift to state 24
+-- On ADD shift to state 26
+## Reductions:
+-- On THEN RPAREN IN EOF ELSE DOUBLE_SEMI
+--   reduce production expression -> expr1
+
+State 18:
+## Known stack suffix:
+## expr1 SUB
+## LR(1) items:
+expr1 -> expr1 SUB . expr2 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On INT shift to state 7
+-- On FALSE shift to state 12
+-- On expr3 shift to state 14
+-- On expr2 shift to state 19
+## Reductions:
+
+State 19:
+## Known stack suffix:
+## expr1 SUB expr2
+## LR(1) items:
+expr1 -> expr1 SUB expr2 . [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr2 -> expr2 . expr3 [ TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On INT shift to state 7
+-- On FALSE shift to state 12
+-- On expr3 shift to state 16
+## Reductions:
+-- On THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD
+--   reduce production expr1 -> expr1 SUB expr2
+
+State 20:
+## Known stack suffix:
+## expr1 MUL
+## LR(1) items:
+expr1 -> expr1 MUL . expr2 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On INT shift to state 7
+-- On FALSE shift to state 12
+-- On expr3 shift to state 14
+-- On expr2 shift to state 21
+## Reductions:
+
+State 21:
+## Known stack suffix:
+## expr1 MUL expr2
+## LR(1) items:
+expr1 -> expr1 MUL expr2 . [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr2 -> expr2 . expr3 [ TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On INT shift to state 7
+-- On FALSE shift to state 12
+-- On expr3 shift to state 16
+## Reductions:
+-- On THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD
+--   reduce production expr1 -> expr1 MUL expr2
+
+State 22:
+## Known stack suffix:
+## expr1 LT
+## LR(1) items:
+expr1 -> expr1 LT . expr1 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On INT shift to state 7
+-- On FALSE shift to state 12
+-- On expr3 shift to state 14
+-- On expr2 shift to state 15
+-- On expr1 shift to state 23
+## Reductions:
+
+State 23:
+## Known stack suffix:
+## expr1 LT expr1
+## LR(1) items:
+expr1 -> expr1 . ADD expr2 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr1 -> expr1 . SUB expr2 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr1 -> expr1 . MUL expr2 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr1 -> expr1 . DIV expr2 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr1 -> expr1 . EQ expr1 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr1 -> expr1 . LT expr1 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr1 -> expr1 LT expr1 . [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+-- On SUB shift to state 18
+-- On MUL shift to state 20
+-- On DIV shift to state 24
+-- On ADD shift to state 26
+## Reductions:
+-- On THEN RPAREN IN EOF ELSE DOUBLE_SEMI
+--   reduce production expr1 -> expr1 LT expr1
+
+State 24:
+## Known stack suffix:
+## expr1 DIV
+## LR(1) items:
+expr1 -> expr1 DIV . expr2 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On INT shift to state 7
+-- On FALSE shift to state 12
+-- On expr3 shift to state 14
+-- On expr2 shift to state 25
+## Reductions:
+
+State 25:
+## Known stack suffix:
+## expr1 DIV expr2
+## LR(1) items:
+expr1 -> expr1 DIV expr2 . [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr2 -> expr2 . expr3 [ TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On INT shift to state 7
+-- On FALSE shift to state 12
+-- On expr3 shift to state 16
+## Reductions:
+-- On THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD
+--   reduce production expr1 -> expr1 DIV expr2
+
+State 26:
+## Known stack suffix:
+## expr1 ADD
+## LR(1) items:
+expr1 -> expr1 ADD . expr2 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On INT shift to state 7
+-- On FALSE shift to state 12
+-- On expr3 shift to state 14
+-- On expr2 shift to state 27
+## Reductions:
+
+State 27:
+## Known stack suffix:
+## expr1 ADD expr2
+## LR(1) items:
+expr1 -> expr1 ADD expr2 . [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr2 -> expr2 . expr3 [ TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On INT shift to state 7
+-- On FALSE shift to state 12
+-- On expr3 shift to state 16
+## Reductions:
+-- On THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD
+--   reduce production expr1 -> expr1 ADD expr2
+
+State 28:
+## Known stack suffix:
+## expr1 EQ
+## LR(1) items:
+expr1 -> expr1 EQ . expr1 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On INT shift to state 7
+-- On FALSE shift to state 12
+-- On expr3 shift to state 14
+-- On expr2 shift to state 15
+-- On expr1 shift to state 29
+## Reductions:
+
+State 29:
+## Known stack suffix:
+## expr1 EQ expr1
+## LR(1) items:
+expr1 -> expr1 . ADD expr2 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr1 -> expr1 . SUB expr2 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr1 -> expr1 . MUL expr2 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr1 -> expr1 . DIV expr2 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr1 -> expr1 . EQ expr1 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr1 -> expr1 EQ expr1 . [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+expr1 -> expr1 . LT expr1 [ THEN SUB RPAREN MUL LT IN EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+-- On SUB shift to state 18
+-- On MUL shift to state 20
+-- On DIV shift to state 24
+-- On ADD shift to state 26
+## Reductions:
+-- On THEN RPAREN IN EOF ELSE DOUBLE_SEMI
+--   reduce production expr1 -> expr1 EQ expr1
+
+State 30:
+## Known stack suffix:
+## IF expression
+## LR(1) items:
+expression -> IF expression . THEN expression ELSE expression [ THEN RPAREN IN EOF ELSE DOUBLE_SEMI ]
+## Transitions:
+-- On THEN shift to state 31
+## Reductions:
+
+State 31:
+## Known stack suffix:
+## IF expression THEN
+## LR(1) items:
+expression -> IF expression THEN . expression ELSE expression [ THEN RPAREN IN EOF ELSE DOUBLE_SEMI ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On LET shift to state 4
+-- On INT shift to state 7
+-- On IF shift to state 8
+-- On FUN shift to state 9
+-- On FALSE shift to state 12
+-- On expression shift to state 32
+-- On expr3 shift to state 14
+-- On expr2 shift to state 15
+-- On expr1 shift to state 17
+## Reductions:
+
+State 32:
+## Known stack suffix:
+## IF expression THEN expression
+## LR(1) items:
+expression -> IF expression THEN expression . ELSE expression [ THEN RPAREN IN EOF ELSE DOUBLE_SEMI ]
+## Transitions:
+-- On ELSE shift to state 33
+## Reductions:
+
+State 33:
+## Known stack suffix:
+## IF expression THEN expression ELSE
+## LR(1) items:
+expression -> IF expression THEN expression ELSE . expression [ THEN RPAREN IN EOF ELSE DOUBLE_SEMI ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On LET shift to state 4
+-- On INT shift to state 7
+-- On IF shift to state 8
+-- On FUN shift to state 9
+-- On FALSE shift to state 12
+-- On expression shift to state 34
+-- On expr3 shift to state 14
+-- On expr2 shift to state 15
+-- On expr1 shift to state 17
+## Reductions:
+
+State 34:
+## Known stack suffix:
+## IF expression THEN expression ELSE expression
+## LR(1) items:
+expression -> IF expression THEN expression ELSE expression . [ THEN RPAREN IN EOF ELSE DOUBLE_SEMI ]
+## Transitions:
+## Reductions:
+-- On THEN RPAREN IN EOF ELSE DOUBLE_SEMI
+--   reduce production expression -> IF expression THEN expression ELSE expression
+
+State 35:
+## Known stack suffix:
+## LET LOWER_IDENT EQ expression
+## LR(1) items:
+expression -> LET LOWER_IDENT EQ expression . IN expression [ THEN RPAREN IN EOF ELSE DOUBLE_SEMI ]
+## Transitions:
+-- On IN shift to state 36
+## Reductions:
+
+State 36:
+## Known stack suffix:
+## LET LOWER_IDENT EQ expression IN
+## LR(1) items:
+expression -> LET LOWER_IDENT EQ expression IN . expression [ THEN RPAREN IN EOF ELSE DOUBLE_SEMI ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On LET shift to state 4
+-- On INT shift to state 7
+-- On IF shift to state 8
+-- On FUN shift to state 9
+-- On FALSE shift to state 12
+-- On expression shift to state 37
+-- On expr3 shift to state 14
+-- On expr2 shift to state 15
+-- On expr1 shift to state 17
+## Reductions:
+
+State 37:
+## Known stack suffix:
+## LET LOWER_IDENT EQ expression IN expression
+## LR(1) items:
+expression -> LET LOWER_IDENT EQ expression IN expression . [ THEN RPAREN IN EOF ELSE DOUBLE_SEMI ]
+## Transitions:
+## Reductions:
+-- On THEN RPAREN IN EOF ELSE DOUBLE_SEMI
+--   reduce production expression -> LET LOWER_IDENT EQ expression IN expression
+
+State 38:
+## Known stack suffix:
+## LPAREN expression
+## LR(1) items:
+expr3 -> LPAREN expression . RPAREN [ TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+-- On RPAREN shift to state 39
+## Reductions:
+
+State 39:
+## Known stack suffix:
+## LPAREN expression RPAREN
+## LR(1) items:
+expr3 -> LPAREN expression RPAREN . [ TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD ]
+## Transitions:
+## Reductions:
+-- On TRUE THEN SUB RPAREN MUL LT LPAREN LOWER_IDENT INT IN FALSE EQ EOF ELSE DOUBLE_SEMI DIV ADD
+--   reduce production expr3 -> LPAREN expression RPAREN
+
+State 40:
+## Known stack suffix:
+## LET
+## LR(1) items:
+expression -> LET . LOWER_IDENT EQ expression IN expression [ DOUBLE_SEMI ]
+parseCommand -> LET . LOWER_IDENT EQ expression DOUBLE_SEMI [ # ]
+## Transitions:
+-- On LOWER_IDENT shift to state 41
+## Reductions:
+
+State 41:
+## Known stack suffix:
+## LET LOWER_IDENT
+## LR(1) items:
+expression -> LET LOWER_IDENT . EQ expression IN expression [ DOUBLE_SEMI ]
+parseCommand -> LET LOWER_IDENT . EQ expression DOUBLE_SEMI [ # ]
+## Transitions:
+-- On EQ shift to state 42
+## Reductions:
+
+State 42:
+## Known stack suffix:
+## LET LOWER_IDENT EQ
+## LR(1) items:
+expression -> LET LOWER_IDENT EQ . expression IN expression [ DOUBLE_SEMI ]
+parseCommand -> LET LOWER_IDENT EQ . expression DOUBLE_SEMI [ # ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On LET shift to state 4
+-- On INT shift to state 7
+-- On IF shift to state 8
+-- On FUN shift to state 9
+-- On FALSE shift to state 12
+-- On expression shift to state 43
+-- On expr3 shift to state 14
+-- On expr2 shift to state 15
+-- On expr1 shift to state 17
+## Reductions:
+
+State 43:
+## Known stack suffix:
+## LET LOWER_IDENT EQ expression
+## LR(1) items:
+expression -> LET LOWER_IDENT EQ expression . IN expression [ DOUBLE_SEMI ]
+parseCommand -> LET LOWER_IDENT EQ expression . DOUBLE_SEMI [ # ]
+## Transitions:
+-- On IN shift to state 36
+-- On DOUBLE_SEMI shift to state 44
+## Reductions:
+
+State 44:
+## Known stack suffix:
+## LET LOWER_IDENT EQ expression DOUBLE_SEMI
+## LR(1) items:
+parseCommand -> LET LOWER_IDENT EQ expression DOUBLE_SEMI . [ # ]
+## Transitions:
+## Reductions:
+-- On #
+--   reduce production parseCommand -> LET LOWER_IDENT EQ expression DOUBLE_SEMI
+
+State 45:
+## Known stack suffix:
+## parseCommand
+## LR(1) items:
+parseCommand' -> parseCommand . [ # ]
+## Transitions:
+## Reductions:
+-- On #
+--   accept parseCommand
+
+State 46:
+## Known stack suffix:
+## expression
+## LR(1) items:
+parseCommand -> expression . DOUBLE_SEMI [ # ]
+## Transitions:
+-- On DOUBLE_SEMI shift to state 47
+## Reductions:
+
+State 47:
+## Known stack suffix:
+## expression DOUBLE_SEMI
+## LR(1) items:
+parseCommand -> expression DOUBLE_SEMI . [ # ]
+## Transitions:
+## Reductions:
+-- On #
+--   reduce production parseCommand -> expression DOUBLE_SEMI
+
+State 48:
+## Known stack suffix:
+##
+## LR(1) items:
+parseExpr' -> . parseExpr [ # ]
+## Transitions:
+-- On TRUE shift to state 1
+-- On LPAREN shift to state 2
+-- On LOWER_IDENT shift to state 3
+-- On LET shift to state 4
+-- On INT shift to state 7
+-- On IF shift to state 8
+-- On FUN shift to state 9
+-- On FALSE shift to state 12
+-- On parseExpr shift to state 49
+-- On expression shift to state 50
+-- On expr3 shift to state 14
+-- On expr2 shift to state 15
+-- On expr1 shift to state 17
+## Reductions:
+
+State 49:
+## Known stack suffix:
+## parseExpr
+## LR(1) items:
+parseExpr' -> parseExpr . [ # ]
+## Transitions:
+## Reductions:
+-- On #
+--   accept parseExpr
+
+State 50:
+## Known stack suffix:
+## expression
+## LR(1) items:
+parseExpr -> expression . EOF [ # ]
+## Transitions:
+-- On EOF shift to state 51
+## Reductions:
+
+State 51:
+## Known stack suffix:
+## expression EOF
+## LR(1) items:
+parseExpr -> expression EOF . [ # ]
+## Transitions:
+## Reductions:
+-- On #
+--   reduce production parseExpr -> expression EOF
+

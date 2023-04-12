@@ -37,4 +37,14 @@ let rec eval env e =
   | ELet (x, e1, e2) -> 
       let v1 = eval env e1 in 
       eval ((x, v1) :: env) e2
-  
+  | ERLet (f, x, e1, e2) -> 
+      eval ((f, VRFun(f,x,e1,env)) :: env) e2
+  | EAbs (x, e) -> VFun (x, e, env)
+  | EApp (e1, e2) -> 
+      match (eval env e1, eval env e2) with
+      | (VFun (x, e, env'), v) -> 
+          eval ((x, v) :: env') e 
+      | (VRFun (f, x, e, env'), v) -> 
+          eval ((x, v) :: (f, VRFun(f,x,e1,env')) :: env') e
+      | _ -> raise Eval_error  
+        
