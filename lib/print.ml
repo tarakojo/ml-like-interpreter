@@ -1,13 +1,15 @@
 
 open Syntax
 
-let printValue = function
+let rec printValue : value -> unit = function
     | VInt x -> print_int x 
     | VBool b -> print_string (if b then "true" else "false")
     | VFun _ -> print_string "function"
     | VRFun _ -> print_string "rec function"
+    | VList lis -> print_string "["; List.iter (fun v -> printValue v; print_string ";") lis; print_string "]"
+    | VTuple t -> print_string "("; List.iter (fun v -> printValue v; print_string ",") t; print_string ")"
 
-
+(*
 let rec printExpr : expr -> unit = function 
     | EValue v -> 
         print_string "EValue("; 
@@ -74,3 +76,5 @@ let rec printExpr : expr -> unit = function
         print_string ",";
         printExpr e2;
         print_string ")"
+
+        *)

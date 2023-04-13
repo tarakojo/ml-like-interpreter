@@ -9,8 +9,8 @@ let lowerIdent = ['a'-'z''_']['a'-'z''A'-'Z''0'-'9''_''\'']*
 rule tokenize = parse 
     [' ''\t''\r''\n'] {tokenize lexbuf}
 |   natural {INT(int_of_string(Lexing.lexeme lexbuf))}
-|   "true" {TRUE}
-|   "false" {FALSE}
+|   "true" {BOOL(true)}
+|   "false" {BOOL(false)}
 |   '+' {ADD}
 |   '-' {SUB}
 |   '*' {MUL}
@@ -25,8 +25,17 @@ rule tokenize = parse
 |   "in" {IN}
 |   "fun" {FUN}
 |   "->" {RIGHT_ARROW}
+|   "match" {MATCH}
+|   "with" {WITH}
+|   "|" {PIPE}
+|   "end" {END}
 |   "(" {LPAREN}
 |   ")" {RPAREN}
+|   "[" {LSQUARE}
+|   "]" {RSQUARE}
+|   "," {COMMA}
+|   "::" {DOUBLE_COLON}
+|   ";" {SEMI}
 |   ";;" {DOUBLE_SEMI}
 |   lowerIdent { LOWER_IDENT(Lexing.lexeme lexbuf) }
 |   eof {EOF}
