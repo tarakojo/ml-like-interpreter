@@ -2,12 +2,11 @@
 open Interpreter
 open Syntax
 
-let rec interactiveMode () = 
-    let lexbuf = Lexing.from_channel stdin in 
+let rec loop lexbuf = 
     let c = Parser.parseCommand Lexer.tokenize lexbuf in 
     (match c with 
     | CExp e -> 
-      Print.printValue (Eval.eval e); print_newline() ); interactiveMode()
+      Print.printValue (Eval.eval e); print_newline() ); interactiveMode lexbuf
 let fileMode path = 
     let lexbuf = Lexing.from_channel (open_in path) in 
     let e = Parser.parseExpr Lexer.tokenize lexbuf in 
@@ -16,7 +15,7 @@ let fileMode path =
 let () = 
     try 
       if Array.length Sys.argv <= 1 then 
-        interactiveMode() 
+        interactiveMode (Lexing.from_channel stdin)
       else
         fileMode (Sys.argv.(1)) 
         
