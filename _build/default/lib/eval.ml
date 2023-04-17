@@ -2,7 +2,7 @@ open Syntax
 
 exception Eval_error 
 
-let rec eval e = 
+let rec eval (e : expr) : value = 
   let getint v = 
     match v with
     | VInt x -> x 
@@ -32,4 +32,6 @@ let rec eval e =
   | EIf (cond, et, ef) -> 
     let c = getbool (eval cond) in 
     if c then eval et else eval ef 
+    
+
     

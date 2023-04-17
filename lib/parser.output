@@ -1,0 +1,362 @@
+   0  $accept : %entry% $end
+
+   1  parseExpr : expression EOF
+
+   2  expression : INT
+   3             | TRUE
+   4             | FALSE
+   5             | expression ADD expression
+   6             | expression SUB expression
+   7             | expression MUL expression
+   8             | expression DIV expression
+   9             | expression EQ expression
+  10             | expression LT expression
+  11             | IF expression THEN expression ELSE expression
+
+  12  %entry% : '\001' parseExpr
+
+state 0
+	$accept : . %entry% $end  (0)
+
+	'\001'  shift 1
+	.  error
+
+	%entry%  goto 2
+
+
+state 1
+	%entry% : '\001' . parseExpr  (12)
+
+	INT  shift 3
+	TRUE  shift 4
+	FALSE  shift 5
+	IF  shift 6
+	.  error
+
+	parseExpr  goto 7
+	expression  goto 8
+
+
+state 2
+	$accept : %entry% . $end  (0)
+
+	$end  accept
+
+
+state 3
+	expression : INT .  (2)
+
+	.  reduce 2
+
+
+state 4
+	expression : TRUE .  (3)
+
+	.  reduce 3
+
+
+state 5
+	expression : FALSE .  (4)
+
+	.  reduce 4
+
+
+state 6
+	expression : IF . expression THEN expression ELSE expression  (11)
+
+	INT  shift 3
+	TRUE  shift 4
+	FALSE  shift 5
+	IF  shift 6
+	.  error
+
+	expression  goto 9
+
+
+state 7
+	%entry% : '\001' parseExpr .  (12)
+
+	.  reduce 12
+
+
+state 8
+	parseExpr : expression . EOF  (1)
+	expression : expression . ADD expression  (5)
+	expression : expression . SUB expression  (6)
+	expression : expression . MUL expression  (7)
+	expression : expression . DIV expression  (8)
+	expression : expression . EQ expression  (9)
+	expression : expression . LT expression  (10)
+
+	ADD  shift 10
+	SUB  shift 11
+	MUL  shift 12
+	DIV  shift 13
+	EQ  shift 14
+	LT  shift 15
+	EOF  shift 16
+	.  error
+
+
+state 9
+	expression : expression . ADD expression  (5)
+	expression : expression . SUB expression  (6)
+	expression : expression . MUL expression  (7)
+	expression : expression . DIV expression  (8)
+	expression : expression . EQ expression  (9)
+	expression : expression . LT expression  (10)
+	expression : IF expression . THEN expression ELSE expression  (11)
+
+	ADD  shift 10
+	SUB  shift 11
+	MUL  shift 12
+	DIV  shift 13
+	EQ  shift 14
+	LT  shift 15
+	THEN  shift 17
+	.  error
+
+
+state 10
+	expression : expression ADD . expression  (5)
+
+	INT  shift 3
+	TRUE  shift 4
+	FALSE  shift 5
+	IF  shift 6
+	.  error
+
+	expression  goto 18
+
+
+state 11
+	expression : expression SUB . expression  (6)
+
+	INT  shift 3
+	TRUE  shift 4
+	FALSE  shift 5
+	IF  shift 6
+	.  error
+
+	expression  goto 19
+
+
+state 12
+	expression : expression MUL . expression  (7)
+
+	INT  shift 3
+	TRUE  shift 4
+	FALSE  shift 5
+	IF  shift 6
+	.  error
+
+	expression  goto 20
+
+
+state 13
+	expression : expression DIV . expression  (8)
+
+	INT  shift 3
+	TRUE  shift 4
+	FALSE  shift 5
+	IF  shift 6
+	.  error
+
+	expression  goto 21
+
+
+state 14
+	expression : expression EQ . expression  (9)
+
+	INT  shift 3
+	TRUE  shift 4
+	FALSE  shift 5
+	IF  shift 6
+	.  error
+
+	expression  goto 22
+
+
+state 15
+	expression : expression LT . expression  (10)
+
+	INT  shift 3
+	TRUE  shift 4
+	FALSE  shift 5
+	IF  shift 6
+	.  error
+
+	expression  goto 23
+
+
+state 16
+	parseExpr : expression EOF .  (1)
+
+	.  reduce 1
+
+
+state 17
+	expression : IF expression THEN . expression ELSE expression  (11)
+
+	INT  shift 3
+	TRUE  shift 4
+	FALSE  shift 5
+	IF  shift 6
+	.  error
+
+	expression  goto 24
+
+
+state 18
+	expression : expression . ADD expression  (5)
+	expression : expression ADD expression .  (5)
+	expression : expression . SUB expression  (6)
+	expression : expression . MUL expression  (7)
+	expression : expression . DIV expression  (8)
+	expression : expression . EQ expression  (9)
+	expression : expression . LT expression  (10)
+
+	MUL  shift 12
+	DIV  shift 13
+	ADD  reduce 5
+	SUB  reduce 5
+	EQ  reduce 5
+	LT  reduce 5
+	THEN  reduce 5
+	ELSE  reduce 5
+	EOF  reduce 5
+
+
+state 19
+	expression : expression . ADD expression  (5)
+	expression : expression . SUB expression  (6)
+	expression : expression SUB expression .  (6)
+	expression : expression . MUL expression  (7)
+	expression : expression . DIV expression  (8)
+	expression : expression . EQ expression  (9)
+	expression : expression . LT expression  (10)
+
+	MUL  shift 12
+	DIV  shift 13
+	ADD  reduce 6
+	SUB  reduce 6
+	EQ  reduce 6
+	LT  reduce 6
+	THEN  reduce 6
+	ELSE  reduce 6
+	EOF  reduce 6
+
+
+state 20
+	expression : expression . ADD expression  (5)
+	expression : expression . SUB expression  (6)
+	expression : expression . MUL expression  (7)
+	expression : expression MUL expression .  (7)
+	expression : expression . DIV expression  (8)
+	expression : expression . EQ expression  (9)
+	expression : expression . LT expression  (10)
+
+	.  reduce 7
+
+
+state 21
+	expression : expression . ADD expression  (5)
+	expression : expression . SUB expression  (6)
+	expression : expression . MUL expression  (7)
+	expression : expression . DIV expression  (8)
+	expression : expression DIV expression .  (8)
+	expression : expression . EQ expression  (9)
+	expression : expression . LT expression  (10)
+
+	.  reduce 8
+
+
+state 22
+	expression : expression . ADD expression  (5)
+	expression : expression . SUB expression  (6)
+	expression : expression . MUL expression  (7)
+	expression : expression . DIV expression  (8)
+	expression : expression . EQ expression  (9)
+	expression : expression EQ expression .  (9)
+	expression : expression . LT expression  (10)
+
+	ADD  shift 10
+	SUB  shift 11
+	MUL  shift 12
+	DIV  shift 13
+	THEN  reduce 9
+	ELSE  reduce 9
+	EOF  reduce 9
+
+
+state 23
+	expression : expression . ADD expression  (5)
+	expression : expression . SUB expression  (6)
+	expression : expression . MUL expression  (7)
+	expression : expression . DIV expression  (8)
+	expression : expression . EQ expression  (9)
+	expression : expression . LT expression  (10)
+	expression : expression LT expression .  (10)
+
+	ADD  shift 10
+	SUB  shift 11
+	MUL  shift 12
+	DIV  shift 13
+	THEN  reduce 10
+	ELSE  reduce 10
+	EOF  reduce 10
+
+
+state 24
+	expression : expression . ADD expression  (5)
+	expression : expression . SUB expression  (6)
+	expression : expression . MUL expression  (7)
+	expression : expression . DIV expression  (8)
+	expression : expression . EQ expression  (9)
+	expression : expression . LT expression  (10)
+	expression : IF expression THEN expression . ELSE expression  (11)
+
+	ADD  shift 10
+	SUB  shift 11
+	MUL  shift 12
+	DIV  shift 13
+	EQ  shift 14
+	LT  shift 15
+	ELSE  shift 25
+	.  error
+
+
+state 25
+	expression : IF expression THEN expression ELSE . expression  (11)
+
+	INT  shift 3
+	TRUE  shift 4
+	FALSE  shift 5
+	IF  shift 6
+	.  error
+
+	expression  goto 26
+
+
+state 26
+	expression : expression . ADD expression  (5)
+	expression : expression . SUB expression  (6)
+	expression : expression . MUL expression  (7)
+	expression : expression . DIV expression  (8)
+	expression : expression . EQ expression  (9)
+	expression : expression . LT expression  (10)
+	expression : IF expression THEN expression ELSE expression .  (11)
+
+	ADD  shift 10
+	SUB  shift 11
+	MUL  shift 12
+	DIV  shift 13
+	EQ  shift 14
+	LT  shift 15
+	THEN  reduce 11
+	ELSE  reduce 11
+	EOF  reduce 11
+
+
+16 terminals, 4 nonterminals
+13 grammar rules, 27 states
