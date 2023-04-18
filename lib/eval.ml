@@ -44,7 +44,11 @@ let rec eval (env : env) (e : expr) : value=
     let c = getbool (eval env cond) in 
     if c then eval env et else eval env ef 
   | EVar x -> 
-      List.assoc x env 
+    (try 
+        List.assoc x env
+      with 
+      | _ -> print_endline (x ^ " is not defined.") ; raise Eval_error 
+    )
   | ELet (x, e1, e2) -> 
       let v1 = eval env e1 in 
       eval ((x, v1) :: env) e2
