@@ -41,6 +41,43 @@ type bnat =
   | B0 of bnat
   | B1 of bnat 
 
+  (*
+  0 = Z 
+  1 = B1 Z 
+  2 = B0 (B1 Z) 
+  3 = B1 (B1 Z) 
+  4 = B0 (B0 (B1 Z))    
+  *)
+
+
+let halfAdd x y = (x <> y, x && y) 
+let fullAdd x y z = 
+  let (sXY, cXY) = halfAdd x y in 
+  let (sXYZ, cXYZ) = halfAdd sXY z  in 
+  (sXYZ, cXY || cXYZ) 
+let mlb = function
+| Z -> false
+| B0 _ -> false
+| B1 _ -> true 
+
+let shift = function
+| Z -> Z 
+| B0 x 
+| B1 x -> x 
+
+let b_add m n = 
+  let rec loop c x y = 
+    if not c && x = Z && y = Z then Z
+    else   
+      let xmlb = mlb x in 
+      let ymlb = mlb y in 
+      let (s, nextc) =  fullAdd c xmlb ymlb in 
+      let t =  loop nextc (shift x) (shift y) in 
+      if s then B1 t 
+      else B0 t 
+    in 
+  loop false m n 
+
 
 let rec incr z = 
   match z  with
@@ -115,7 +152,7 @@ let levelorder tree =
 
 (*課題5*)
 type value = VInt of int | VBool of bool
-type binOp = OpAdd | OpSub | OpMul | OpDiv 
+type binOp = OpAdd | OpSub | OpMul | OpDiv  
 type expr = EValue of value  
           | EBin of binOp * expr * expr 
           | EEq of expr * expr 
