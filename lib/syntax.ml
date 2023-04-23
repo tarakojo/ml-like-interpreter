@@ -3,7 +3,7 @@ type value =
     VInt of int 
   | VBool of bool
   | VFun of string * expr * (string * value) list
-  | VRFun of string * string * expr * (string * value) list
+  | VRFun of int * (string * string * expr) list (* string * string * expr * (string * value) list *)
   | VList of value list
   | VTuple of value list 
  
