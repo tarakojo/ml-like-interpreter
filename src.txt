@@ -1,1 +1,35 @@
-let rec f x = if x < 1 then 1 else x * f (x - 1) in f 5
+let f = fun x ->
+  match x with
+    1 -> 1
+  | true -> 2
+  | x -> x * 2
+  end;;
+
+  
+f 1;;
+
+f true;;
+
+f 2;;
+
+1 :: 2 :: 3 :: [];;
+
+(1, true);;
+
+match (1, 2) with
+  (x, y) -> x
+end;;
+
+match (1, (2, 3)) with
+  (x, (y, z)) -> z
+end;;
+
+match 1 :: 2 :: 3 :: [] with
+  h :: t -> h
+| [] -> 0
+end;;
+
+match 1 :: 2 :: 3 :: [] with
+  x :: y :: t -> t
+| z -> 0
+end;;

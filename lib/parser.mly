@@ -20,14 +20,16 @@ open Syntax
 %left ADD SUB 
 %left MUL DIV
 
-%start<Syntax.expr> parseExpr
+%start<Syntax.command list> parseFile
 %start<Syntax.command> parseCommand
 
 
 %% 
 
-parseExpr : 
-    expression EOF {$1}
+parseFile : 
+    parseCommand parseFile { $1 :: $2 }
+|   expression EOF {[CExp $1]} 
+|   EOF { [] }
 ;
 parseCommand : 
     expression DOUBLE_SEMI { CExp ($1) }
