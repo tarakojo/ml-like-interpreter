@@ -22,6 +22,7 @@ rule tokenize = parse
 |   "else" {ELSE}
 |   "let" {LET}
 |   "rec" {REC}
+|   "and" {AND}
 |   "in" {IN}
 |   "fun" {FUN}
 |   "->" {RIGHT_ARROW}
