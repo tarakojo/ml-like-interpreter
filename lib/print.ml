@@ -1,80 +1,26 @@
-
 open Syntax
 
-let rec printValue : value -> unit = function
-    | VInt x -> print_int x 
-    | VBool b -> print_string (if b then "true" else "false")
-    | VFun _ -> print_string "function"
-    | VRFun _ -> print_string "rec function"
-    | VList lis -> print_string "["; List.iter (fun v -> printValue v; print_string ";") lis; print_string "]"
-    | VTuple t -> print_string "("; List.iter (fun v -> printValue v; print_string ",") t; print_string ")"
+let concat head delim tail lis =
+  let buf = Buffer.create 100 in
+  let rec loop = function
+    | [] -> ()
+    | h :: [] -> Buffer.add_string buf h
+    | h :: t ->
+        Buffer.add_string buf h;
+        Buffer.add_string buf delim;
+        loop t
+  in
+  Buffer.add_string buf head;
+  loop lis;
+  Buffer.add_string buf tail;
+  Buffer.contents buf
 
-(*
-let rec printExpr : expr -> unit = function 
-    | EValue v -> 
-        print_string "EValue("; 
-        (match v with
-        | VInt x -> print_string "VInt(" ; print_int x ; print_string "))"
-        | VBool x -> print_string ("VBool(" ^ (if x then "true" else "false")); print_string "))"
-        | VFun _ -> print_string "VFun"
-        | VRFun _ -> print_string "VRFun")
-    | EBin (op, e1, e2)  -> 
-        print_string "EBin(";
-        (match op with
-        | OpAdd -> print_string "+,"
-        | OpSub -> print_string "-,"
-        | OpMul -> print_string "*,"
-        | OpDiv -> print_string "/,");
-        printExpr e1; print_string ","; printExpr e2; print_string ")"
-    | EEq (e1, e2) -> 
-        print_string "EEq(";
-        printExpr e1 ; 
-        print_string ",";
-        printExpr e2; 
-        print_string ")"
-    | ELt (e1, e2) -> 
-        print_string "ELt(";
-        printExpr e1 ; 
-        print_string ",";
-        printExpr e2; 
-        print_string ")"
-    | EIf (cond, e1, e2) -> 
-        print_string "EIf(";
-        printExpr cond; 
-        print_string ",";
-        printExpr e1; 
-        print_string ",";
-        printExpr e2; 
-        print_string ")"
-    | EVar x -> 
-        print_string "EVar(";
-        print_string x ;
-        print_string ")"
-    
-    | ELet (x, e1, e2) -> 
-        print_string ("ELet("^x^",");
-        printExpr e1; 
-        print_string ",";
-        printExpr e2 ;
-        print_string ")"
-    
-    | ERLet (f, x, e1, e2) -> 
-        print_string ("ERLet("^f^","^x^",");
-        printExpr e1;
-        print_string ",";
-        printExpr e2 ; 
-        print_string ")"
-    
-    | EAbs (x, e) -> 
-        print_string ("EAbs("^x^",");
-        printExpr e ;
-        print_string ")"
+let rec string_of_value = function
+  | VInt x -> string_of_int x
+  | VBool x -> string_of_bool x
+  | VFun _ -> "function"
+  | VRFun _ -> "rec function"
+  | VList lis -> concat "[" ";" "]" (List.map string_of_value lis)
+  | VTuple lis -> concat "(" "," ")" (List.map string_of_value lis)
 
-    | EApp (e1, e2) -> 
-        print_string ("EApp(");
-        printExpr e1; 
-        print_string ",";
-        printExpr e2;
-        print_string ")"
-
-        *)
+let print_value v = v |> string_of_value |> print_string

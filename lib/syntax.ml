@@ -1,38 +1,41 @@
-type value =
+type name = string
+and env = (name * value) list
+
+and value =
   | VInt of int
   | VBool of bool
-  | VFun of string * expr * (string * value) list
-  | VRFun of int * (string * string * expr) list * (string * value) list
+  | VFun of name * expr * env
+  | VRFun of int * (name * name * expr) list * env
   | VList of value list
   | VTuple of value list
-  
-and binOp = OpAdd | OpSub | OpMul | OpDiv
+
+and unary_op = OpInv
+and binary_op = OpAdd | OpSub | OpMul | OpDiv | OpMod | OpLT | OpLE | OpGT | OpGE | OpAnd | OpOr | OpCons | OpEQ | OpNE
 
 and expr =
   | EValue of value
-  | EBin of binOp * expr * expr
-  | EEq of expr * expr
-  | ELt of expr * expr
-  | ECons of expr * expr
-  | EList of expr list
+  | EUnary of unary_op * expr
+  | EBin of binary_op * expr * expr
+  | ENil
   | ETuple of expr list
   | EIf of expr * expr * expr
-  | EVar of string
-  | ELet of string * expr * expr
-  | ERLet of (string * string * expr) list * expr
-  | EAbs of string * expr
+  | EVar of name
+  | ELet of name * expr * expr
+  | ERLet of (name * name * expr) list * expr
+  | EAbs of name * expr
   | EApp of expr * expr
   | EMatch of expr * (pattern * expr) list
 
 and pattern =
-  | PVar of string
+  | PVar of name
   | PInt of int
   | PBool of bool
+  | PNil
   | PCons of pattern * pattern
-  | PList of pattern list
   | PTuple of pattern list
 
 type command =
   | CExp of expr
-  | CLet of string * expr
-  | CRLet of (string * string * expr) list
+  | CLet of name * expr
+  | CRLet of (name * name * expr) list
+  | CTest of expr * value
