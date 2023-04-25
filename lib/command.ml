@@ -1,6 +1,7 @@
 open Syntax
 
 let print_binding name value_printer =
+  print_string "-- ";
   print_string name;
   print_string " = ";
   value_printer ();
@@ -25,10 +26,13 @@ let run_command env c =
         fs;
       Eval.add_recfunction env fs
   | CTest (e, v) ->
+      let ok_offset = 15 in 
       let res = Eval.eval env e in
+      let res_str = Print.string_of_value res in 
       if v = res then (
-        Print.print_value res;
-        print_endline " <--- ok";
+        print_string res_str;
+        print_string (String.make (max 0 (ok_offset - String.length res_str)) ' ');
+        print_endline "<ok>";
         env)
       else raise (AssertionFailed (res, v))
 

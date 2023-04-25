@@ -34,6 +34,10 @@ let assert_unique_names lis =
     | Some x -> raise (ParseError (x^" is bound several times")) 
     | None -> () 
 
+let rec abs e = function
+| [] -> e 
+| h :: t -> EAbs(h, abs e t)
+
 %}
 
 %token LONG_ARROW 
@@ -126,7 +130,7 @@ pattern :
 |   tuple(pattern) { PTuple ($1) }
 ;
 let_binding: 
-    LET LOWER_IDENT EQ expression { ($2, $4) }
+    LET nonempty_list(LOWER_IDENT) EQ expression { (List.hd $2, abs $4 (List.tl $2)) }
 ;
 letrec_binding : 
     letrec_binding_1 {
@@ -140,7 +144,7 @@ letrec_binding_1 :
 |   letrec_binding_1 AND letrec_binding_2 { $3 :: $1 }
 ;
 letrec_binding_2 : 
-    LOWER_IDENT LOWER_IDENT EQ expression { ($1, $2, $4) }
+    LOWER_IDENT nonempty_list(LOWER_IDENT) EQ expression { ($1, List.hd $2, abs $4 (List.tl $2)) }
 ;
 value : 
     INT { VInt($1) }
