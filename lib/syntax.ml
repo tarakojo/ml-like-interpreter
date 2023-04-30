@@ -10,7 +10,22 @@ and value =
   | VTuple of value list
 
 and unary_op = OpInv
-and binary_op = OpAdd | OpSub | OpMul | OpDiv | OpMod | OpLT | OpLE | OpGT | OpGE | OpAnd | OpOr | OpCons | OpEQ | OpNE
+
+and binary_op =
+  | OpAdd
+  | OpSub
+  | OpMul
+  | OpDiv
+  | OpMod
+  | OpLT
+  | OpLE
+  | OpGT
+  | OpGE
+  | OpAnd
+  | OpOr
+  | OpCons
+  | OpEQ
+  | OpNE
 
 and expr =
   | EValue of value
