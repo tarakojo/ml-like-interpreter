@@ -54,3 +54,5 @@ type command =
   | CLet of name * expr
   | CRLet of (name * name * expr) list
   | CTest of expr * value
+
+type ty = TyInt | TyBool | TyFun of ty * ty | TyVar of name
