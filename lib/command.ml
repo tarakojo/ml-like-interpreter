@@ -1,4 +1,5 @@
 open Syntax
+open Exceptions
 
 let print_binding name value_printer =
   print_string "-- ";
@@ -6,8 +7,6 @@ let print_binding name value_printer =
   print_string " = ";
   value_printer ();
   print_newline ()
-
-exception AssertionFailed of value * value
 
 let run_command env c =
   match c with
@@ -25,16 +24,6 @@ let run_command env c =
           print_binding f (fun () -> print_string "rec function"))
         fs;
       Eval.add_recfunction env fs
-  | CTest (e, v) ->
-      let ok_offset = 15 in 
-      let res = Eval.eval env e in
-      let res_str = Print.string_of_value res in 
-      if v = res then (
-        print_string res_str;
-        print_string (String.make (max 0 (ok_offset - String.length res_str)) ' ');
-        print_endline "<ok>";
-        env)
-      else raise (AssertionFailed (res, v))
 
 let msg_with_location filemode (lexbuf : Lexing.lexbuf) msg =
   if filemode then (
@@ -54,22 +43,15 @@ let step filemode lexbuf env =
   | Parser.Error ->
       msg_with_location filemode lexbuf "syntax error";
       if filemode then None else Some env
-  | ParserUtils.ParseError msg ->
+  | SyntaxError msg ->
       msg_with_location filemode lexbuf ("syntax error : " ^ msg);
       if filemode then None else Some env
-  | Eval.EvalError msg ->
+  | EvalError msg ->
       msg_with_location filemode lexbuf ("eval error : " ^ msg);
       if filemode then None else Some env
-  | AssertionFailed (given, expected) ->
-      let msg =
-        "assertion failed. "
-        ^ Print.string_of_value expected
-        ^ " was expected but "
-        ^ Print.string_of_value given
-        ^ " was given."
-      in
-      msg_with_location filemode lexbuf msg;
-      Some env
+  | TypeError msg ->
+      msg_with_location filemode lexbuf ("type error : " ^ msg);
+      if filemode then None else Some env
 
 let rec loop filemode lexbuf env =
   match step filemode lexbuf env with

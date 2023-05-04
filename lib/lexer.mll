@@ -23,7 +23,6 @@ rule tokenize = parse
     [' ''\t''\r'] {tokenize lexbuf}
 |   '\n' { Lexing.new_line lexbuf; tokenize lexbuf }
 |   natural {INT(int_of_string(Lexing.lexeme lexbuf))}
-|   "==>"  { LONG_ARROW }
 |   "true" {BOOL(true)}
 |   "false" {BOOL(false)}
 |   '+' {ADD}

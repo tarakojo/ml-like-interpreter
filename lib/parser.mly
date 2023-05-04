@@ -1,6 +1,6 @@
 %{
 open Syntax
-open ParserUtils
+open Exceptions
 
 
 module StrSet = Set.Make (String)
@@ -31,7 +31,7 @@ let find_duplicated_string lis =
   
 let assert_unique_names lis = 
     match find_duplicated_string lis with
-    | Some x -> raise (ParseError (x^" is bound several times")) 
+    | Some x -> raise (SyntaxError (x^" is bound several times")) 
     | None -> () 
 
 let rec abs e = function
@@ -40,7 +40,6 @@ let rec abs e = function
 
 %}
 
-%token LONG_ARROW 
 %token <int> INT 
 %token <bool> BOOL
 %token <string> LOWER_IDENT
@@ -70,7 +69,6 @@ parse_command :
 ;
 command : 
     expression { CExp ($1) }
-|   expression LONG_ARROW value { CTest ($1, $3) } 
 |   let_binding { CLet(fst $1, snd $1) }
 |   letrec_binding { CRLet($1) }
 ;

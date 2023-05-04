@@ -1,6 +1,5 @@
 open Syntax
-
-exception EvalError of string
+open Exceptions
 
 let get_int = function VInt x -> x | _ -> raise (EvalError "int value is required")
 let get_bool = function VBool x -> x | _ -> raise (EvalError "bool value is required")
