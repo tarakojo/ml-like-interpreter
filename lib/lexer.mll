@@ -1,8 +1,9 @@
 
 {
-open Parser 
+open Parser_ 
 
 let buffer_from_stdin() = Lexing.from_channel stdin ~with_positions:false
+let buffer_from_string s = Lexing.from_string ~with_positions:false s 
 let buffer_from_file path = 
     let lexbuf = Lexing.from_channel (open_in path) in 
     Lexing.set_position lexbuf { 
@@ -23,6 +24,7 @@ rule tokenize = parse
     [' ''\t''\r'] {tokenize lexbuf}
 |   '\n' { Lexing.new_line lexbuf; tokenize lexbuf }
 |   natural {INT(int_of_string(Lexing.lexeme lexbuf))}
+|   "==>" { TEST }
 |   "true" {BOOL(true)}
 |   "false" {BOOL(false)}
 |   '+' {ADD}

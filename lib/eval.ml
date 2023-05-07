@@ -1,9 +1,16 @@
 open Syntax
-open Exceptions
+open Exception
 
-let get_int = function VInt x -> x | _ -> raise (EvalError "int value is required")
-let get_bool = function VBool x -> x | _ -> raise (EvalError "bool value is required")
-let get_list = function VList lis -> lis | _ -> raise ((EvalError "list value is required"))
+let get_int = function VInt x -> x | _ -> eval_error "int value is required"
+
+let get_bool = function
+  | VBool x -> x
+  | _ -> eval_error "bool value is required"
+
+let get_list = function
+  | VList lis -> lis
+  | _ -> eval_error "list value is required"
+
 let vint x = VInt x
 let vbool x = VBool x
 
@@ -52,9 +59,7 @@ let rec eval (env : env) (e : expr) : value =
       let c = get_bool (eval env cond) in
       if c then eval env et else eval env ef
   | EVar x -> (
-      try List.assoc x env
-      with _ ->
-        raise (EvalError("Unbound value "^x)))
+      try List.assoc x env with _ -> eval_error ("Unbound value " ^ x))
   | ELet (x, e1, e2) ->
       let v1 = eval env e1 in
       eval ((x, v1) :: env) e2
@@ -68,11 +73,11 @@ let rec eval (env : env) (e : expr) : value =
       | VRFun (i, fs, env') ->
           let _, x, e' = List.nth fs i in
           eval ((x, v) :: add_recfunction env' fs) e'
-      | _ -> raise (EvalError "application to non-function"))
+      | _ -> eval_error "application to a non-function")
   | EMatch (e', branches) -> evalMatch env (eval env e') branches
 
 and evalMatch env v = function
-  | [] -> raise (EvalError "pattern match failed")
+  | [] -> eval_error "pattern match failed"
   | (pat, e) :: t -> (
       match checkPattern pat v with
       | None -> evalMatch env v t

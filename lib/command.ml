@@ -1,59 +1,53 @@
 open Syntax
-open Exceptions
 
-let print_binding name value_printer =
-  print_string "-- ";
-  print_string name;
-  print_string " = ";
-  value_printer ();
-  print_newline ()
+let red = "\027[31m"
+let green = "\027[32m"
+let reset = "\027[0m"
 
-let run_command env c =
-  match c with
-  | CExp e ->
-      Print.print_value (Eval.eval env e);
-      print_newline ();
-      env
-  | CLet (x, e) ->
-      let v = Eval.eval env e in
-      print_binding x (fun () -> Print.print_value v);
-      (x, v) :: env
-  | CRLet fs ->
-      List.iter
-        (fun (f, _, _) ->
-          print_binding f (fun () -> print_string "rec function"))
-        fs;
-      Eval.add_recfunction env fs
+type step_result = Continue of env | Quit
 
-let msg_with_location filemode (lexbuf : Lexing.lexbuf) msg =
-  if filemode then (
-    print_string "###(line ";
-    print_int lexbuf.lex_start_p.pos_lnum;
-    print_string ", character ";
-    print_int (lexbuf.lex_start_p.pos_cnum - lexbuf.lex_start_p.pos_bol + 1);
-    print_endline ") ")
-  else ();
-  print_endline msg
+let print_linenum (lexbuf : Lexing.lexbuf) =
+  print_string "<<line : ";
+  print_int lexbuf.lex_start_p.pos_lnum;
+  print_string ">>"
 
-let step filemode lexbuf env =
+let step filemode (lexbuf : Lexing.lexbuf) env =
   try
     let c = Parser.parse_command Lexer.tokenize lexbuf in
-    match c with None -> None | Some c -> Some (run_command env c)
-  with
-  | Parser.Error ->
-      msg_with_location filemode lexbuf "syntax error";
-      if filemode then None else Some env
-  | SyntaxError msg ->
-      msg_with_location filemode lexbuf ("syntax error : " ^ msg);
-      if filemode then None else Some env
-  | EvalError msg ->
-      msg_with_location filemode lexbuf ("eval error : " ^ msg);
-      if filemode then None else Some env
-  | TypeError msg ->
-      msg_with_location filemode lexbuf ("type error : " ^ msg);
-      if filemode then None else Some env
+    match c with
+    | None -> Quit
+    | Some (CExp e) ->
+        Print.print_value (Eval.eval env e);
+        print_newline ();
+        Continue env
+    | Some (CLet (x, e)) ->
+        let v = Eval.eval env e in
+        print_endline ("--" ^ x ^ " = " ^ Print.string_of_value v);
+        Continue ((x, v) :: env)
+    | Some (CRLet fs) ->
+        List.iter
+          (fun (f, _, _) -> print_endline ("--" ^ f ^ " = rec function"))
+          fs;
+        Continue (Eval.add_recfunction env fs)
+    | Some (CTest (e, v)) ->
+        let r = Eval.eval env e in
+        if r = v then print_endline ("--" ^ green ^ "ok" ^ reset)
+        else (
+          print_string ("--" ^ red ^ "failed " ^ reset);
+          if filemode then print_linenum lexbuf;
+          print_endline (" the result was " ^ Print.string_of_value r));
+
+        Continue env
+  with Exception.Error msg ->
+    if filemode then (
+      print_linenum lexbuf;
+      print_endline msg;
+      Quit)
+    else (
+      print_endline msg;
+      Continue env)
 
 let rec loop filemode lexbuf env =
   match step filemode lexbuf env with
-  | None -> ()
-  | Some env' -> loop filemode lexbuf env'
+  | Quit -> ()
+  | Continue env' -> loop filemode lexbuf env'

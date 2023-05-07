@@ -1,6 +1,6 @@
 %{
 open Syntax
-open Exceptions
+open Exception
 
 
 module StrSet = Set.Make (String)
@@ -31,7 +31,7 @@ let find_duplicated_string lis =
   
 let assert_unique_names lis = 
     match find_duplicated_string lis with
-    | Some x -> raise (SyntaxError (x^" is bound several times")) 
+    | Some x -> syntax_error (x^" is bound several times") 
     | None -> () 
 
 let rec abs e = function
@@ -43,6 +43,7 @@ let rec abs e = function
 %token <int> INT 
 %token <bool> BOOL
 %token <string> LOWER_IDENT
+%token TEST
 %token ADD SUB MUL DIV MOD
 %token EQ NE LT LE GT GE 
 %token BAND BOR 
@@ -61,6 +62,7 @@ let rec abs e = function
 %left MUL DIV MOD
 
 %start<Syntax.command option> parse_command
+%start<Syntax.value> parse_value
 %% 
 
 parse_command : 
@@ -71,6 +73,7 @@ command :
     expression { CExp ($1) }
 |   let_binding { CLet(fst $1, snd $1) }
 |   letrec_binding { CRLet($1) }
+|   expression TEST value { CTest($1, $3) }
 ;
 expression : 
 |   SUB expression { EUnary(OpInv, $2) }
@@ -144,6 +147,11 @@ letrec_binding_1 :
 letrec_binding_2 : 
     LOWER_IDENT nonempty_list(LOWER_IDENT) EQ expression { ($1, List.hd $2, abs $4 (List.tl $2)) }
 ;
+
+parse_value :
+    value { $1 }
+;
+
 value : 
     INT { VInt($1) }
 |   SUB INT { VInt(- $2) }
