@@ -1,7 +1,7 @@
 open Syntax
-open Constraints
 
 type ty_subst = (name * ty) list
+type ty_env = (name * ty) list
 
 let rec subst (v, t) = function
   | TyInt -> TyInt
@@ -46,12 +46,7 @@ let infer_expr tyenv e =
   let t' = subst s t in
   let tyenv' = List.map (fun (x, y) -> (x, subst s y)) tyenv in
   (t', tyenv')
-
-let rec diff prev = function
-  | [] -> []
-  | (x, t) :: tl when List.assoc x prev <> t -> (x, t) :: diff prev tl
-  | _ :: tl -> diff prev tl
-
+(*
 let infer_command tyenv c =
   match c with
   | CExp e ->
@@ -74,3 +69,4 @@ let infer_command tyenv c =
   | CTest (e, _) ->
       let _, tyenv' = infer_expr tyenv e in
       (None, diff tyenv tyenv', tyenv')
+*)

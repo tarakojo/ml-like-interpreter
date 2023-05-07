@@ -25,3 +25,12 @@ let rec string_of_value = function
 
 let print_value v = v |> string_of_value |> print_string
 
+let rec string_of_type = function
+  | TyInt -> "int"
+  | TyBool -> "bool"
+  | TyFun (x, y) -> "(" ^ string_of_type x ^ " -> " ^ string_of_type y ^ ")"
+  | TyTuple xs -> concat "(" " * " ")" (List.map string_of_type xs)
+  | TyList x -> string_of_type x ^ " list"
+  | TyVar x -> x
+
+let print_type t = t |> string_of_type |> print_string

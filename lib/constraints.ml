@@ -11,7 +11,7 @@ type ty_constraints = (ty * ty) list
 type combinator = ty_env -> ty * ty_constraints
 
 let return (t : ty) : combinator = fun _ -> (t, [])
-let ( ++>> ) ((x, t) : name * ty) (f : combinator) tyenv = f ((x, t) :: tyenv)
+let ( @>> ) ((x, t) : name * ty) (f : combinator) tyenv = f ((x, t) :: tyenv)
 
 let ( --> ) (f : combinator) (t : ty) : combinator =
  fun tyenv ->
@@ -58,12 +58,12 @@ and expr : expr -> combinator = function
   | EVar x -> var x
   | ELet (x, e1, e2) ->
       let xt = new_typevar () in
-      e1 ---> xt &&& (x, xt) ++>> expr e2
+      e1 ---> xt &&& (x, xt) @>> expr e2
   | ERLet (lis, e) -> let_rec lis e
   | EAbs (x, e) ->
       let xt = new_typevar () in
       let rt = new_typevar () in
-      (x, xt) ++>> expr e --> rt &&& return (TyFun (xt, rt))
+      (x, xt) @>> (expr e --> rt) &&& return (TyFun (xt, rt))
   | EApp (e1, e2) ->
       let a = new_typevar () in
       let b = new_typevar () in
@@ -97,11 +97,18 @@ and var x tyenv =
   with _ -> raise (Exception.error ("unbound variable " ^ x))
 
 and let_rec lis e =
-  let rec loop = function
-    | [] -> expr e
-    | (f, x, e') :: tl ->
-        let a = new_typevar () in
-        let b = new_typevar () in
-        (x, a) ++>> (e' ---> b) &&& (f, TyFun (a, b)) ++>> loop tl
+  let typevars =
+    List.init (List.length lis) (fun _ ->
+        ( new_typevar () (* typevar of argument*),
+          new_typevar () (* typevar of result*) ))
   in
-  loop lis
+  let with_constraints : combinator -> combinator =
+    List.fold_right2
+      (fun (a, r) (f, _, _) c -> (f, TyFun (a, r)) @>> c)
+      typevars lis
+  in
+
+  List.fold_right2
+    (fun (a, r) (_, x, e') c -> (x, a) @>> with_constraints (e' ---> r) &&& c)
+    typevars lis
+    (with_constraints (expr e))
