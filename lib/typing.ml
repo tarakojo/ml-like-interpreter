@@ -3,12 +3,12 @@ open Syntax
 type ty_subst = (name * ty) list
 type ty_env = (name * ty) list
 
-let rec subst (v, t) = function
+let rec subst ((v, t) as s) = function
   | TyInt -> TyInt
   | TyBool -> TyBool
-  | TyFun (x, y) -> TyFun (subst (v, t) x, subst (v, t) y)
-  | TyTuple xs -> TyTuple (List.map (subst (v, t)) xs)
-  | TyList x -> TyList (subst (v, t) x)
+  | TyFun (x, y) -> TyFun (subst s x, subst s y)
+  | TyTuple xs -> TyTuple (List.map (subst s) xs)
+  | TyList x -> TyList (subst s x)
   | TyVar x when x = v -> t
   | TyVar x -> TyVar x
 
@@ -21,7 +21,7 @@ let rec check_noncyclic_subst v = function
   | TyList x -> check_noncyclic_subst v x
   | _ -> ()
 
-let rec unify = function
+let rec unify : Constraints.ty_constraints -> ty_subst =  function
   | [] -> []
   | (x, y) :: tl when x = y -> unify tl
   | (TyFun (x1, x2), TyFun (y1, y2)) :: tl -> unify ((x1, y1) :: (x2, y2) :: tl)
@@ -34,7 +34,7 @@ let rec unify = function
       (x, t) :: unify c
   | _ -> Exception.type_error "failed to unify"
 
-let subst = List.fold_right subst
+let subst : ty_subst -> ty -> ty = List.fold_right subst
 
 let unify c =
   let compose (v, t) s = (v, subst s t) :: s in

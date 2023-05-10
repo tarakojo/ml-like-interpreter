@@ -68,8 +68,9 @@ and expr : expr -> combinator = function
       let a = new_typevar () in
       let b = new_typevar () in
       e1 ---> TyFun (a, b) &&& e2 ---> a &&& return b
-  | _ -> failwith "unimplemented"
-
+  | EMatch (e, pats) -> 
+        
+    
 and value = function
   | VInt _ -> return TyInt
   | VBool _ -> return TyBool
