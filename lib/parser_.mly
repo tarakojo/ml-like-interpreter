@@ -81,7 +81,7 @@ expression :
 |   let_binding IN expression { ELet(fst $1, snd $1, $3) }
 |   letrec_binding IN expression { ERLet($1, $3) }
 |   FUN LOWER_IDENT RIGHT_ARROW expression { EAbs($2, $4) }
-|   MATCH expression WITH option(PIPE) separated_list(PIPE, match_branch) END { EMatch($2, $5) }
+|   MATCH expression WITH option(PIPE) separated_nonempty_list(PIPE, match_branch) END { EMatch($2, $5) }
 |   expr1 { $1 }
 ;
 expr1 : 

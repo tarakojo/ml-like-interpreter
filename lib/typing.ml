@@ -41,7 +41,7 @@ let unify c =
   List.fold_right compose (unify c) []
 
 let infer_expr tyenv e =
-  let t, c = Constraints.expr e tyenv in
+  let t, c = Constraints.expr tyenv e  in
   let s = unify c in
   let t' = subst s t in
   let tyenv' = List.map (fun (x, y) -> (x, subst s y)) tyenv in

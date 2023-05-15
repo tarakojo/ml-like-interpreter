@@ -8,108 +8,128 @@ let new_typevar () =
 
 type ty_env = (name * ty) list
 type ty_constraints = (ty * ty) list
-type combinator = ty_env -> ty * ty_constraints
 
-let return (t : ty) : combinator = fun _ -> (t, [])
-let ( @>> ) ((x, t) : name * ty) (f : combinator) tyenv = f ((x, t) :: tyenv)
+let rec same_type = function
+  | x1 :: (x2 :: _ as tl) -> (x1, x2) :: same_type tl
+  | _ -> []
 
-let ( --> ) (f : combinator) (t : ty) : combinator =
- fun tyenv ->
-  let rt, rc = f tyenv in
-  (t, (rt, t) :: rc)
-
-let ( &&& ) (f : combinator) (g : combinator) : combinator =
- fun tyenv ->
-  let _, fc = f tyenv in
-  let gt, gc = g tyenv in
-  (gt, fc @ gc)
-
-let ( === ) (f : combinator) (g : combinator) : combinator =
- fun tyenv ->
-  let ft, fc = f tyenv in
-  let gt, gc = g tyenv in
-  (gt, ((ft, gt) :: fc) @ gc)
-
-let rec same_type (f : 'a -> combinator) (lis : 'a list) =
-  match lis with
-  | [] -> failwith "invalid combinator"
-  | [ x ] -> f x
-  | x :: xs -> f x === same_type f xs
-
-let tuple (f : 'a -> combinator) (lis : 'a list) =
-  let ts = List.init (List.length lis) (fun _ -> new_typevar ()) in
-  let rec loop vlis tlis =
-    match (vlis, tlis) with
-    | [], [] -> return (TyTuple ts)
-    | v :: vtl, t :: ttl -> f v --> t &&& loop vtl ttl
-    | _ -> failwith "unreachable"
-  in
-  loop lis ts
-
-let rec ( ---> ) (e : expr) (t : ty) : combinator = expr e --> t
-
-and expr : expr -> combinator = function
+let rec expr (tyenv : ty_env) : expr -> ty * ty_constraints = function
   | EValue v -> value v
-  | EUnary (op, e) -> ( match op with OpInv -> e ---> TyInt)
-  | EBin (op, e1, e2) -> binary op e1 e2
-  | ENil -> return (TyList (new_typevar ()))
-  | ETuple es -> tuple expr es
-  | EIf (e1, e2, e3) -> e1 ---> TyBool &&& same_type expr [ e2; e3 ]
-  | EVar x -> var x
+  | EUnary (op, e) -> (
+      match op with
+      | OpInv ->
+          let t, c = expr tyenv e in
+          (TyInt, (t, TyInt) :: c))
+  | EBin (op, e1, e2) -> binary tyenv op e1 e2
+  | ENil -> (TyList (new_typevar ()), [])
+  | ETuple es ->
+      let ts, cs = es |> List.map (expr tyenv) |> List.split in
+      (TyTuple ts, List.flatten cs)
+  | EIf (e1, e2, e3) ->
+      let t1, c1 = expr tyenv e1 in
+      let t2, c2 = expr tyenv e2 in
+      let t3, c3 = expr tyenv e3 in
+      (t2, ((TyBool, t1) :: (t2, t3) :: c1) @ c2 @ c3)
+  | EVar x -> (
+      try
+        let t = List.assoc x tyenv in
+        (t, [])
+      with _ -> raise (Exception.error ("unbound variable " ^ x)))
   | ELet (x, e1, e2) ->
-      let xt = new_typevar () in
-      e1 ---> xt &&& (x, xt) @>> expr e2
-  | ERLet (lis, e) -> let_rec lis e
+      let t1, c1 = expr tyenv e1 in
+      let t2, c2 = expr ((x, t1) :: tyenv) e2 in
+      (t2, c1 @ c2)
+  | ERLet (lis, e) -> let_rec tyenv lis e
   | EAbs (x, e) ->
       let xt = new_typevar () in
-      let rt = new_typevar () in
-      (x, xt) @>> (expr e --> rt) &&& return (TyFun (xt, rt))
+      let t, c = expr ((x, xt) :: tyenv) e in
+      (TyFun (xt, t), c)
   | EApp (e1, e2) ->
-      let a = new_typevar () in
-      let b = new_typevar () in
-      e1 ---> TyFun (a, b) &&& e2 ---> a &&& return b
-  | EMatch (e, pats) -> 
-        
-    
+      let t1, c1 = expr tyenv e1 in
+      let t2, c2 = expr tyenv e2 in
+      let rt = new_typevar () in
+      (rt, ((t1, TyFun (t2, rt)) :: c1) @ c2)
+  | EMatch (e, pats) -> pattern_match tyenv e pats
+
 and value = function
-  | VInt _ -> return TyInt
-  | VBool _ -> return TyBool
+  | VInt _ -> (TyInt, [])
+  | VBool _ -> (TyBool, [])
   | VList vs ->
-      let a = new_typevar () in
-      same_type value vs --> a &&& return (TyList a)
-  | VTuple vs -> tuple value vs
+      let ts, cs = vs |> List.map value |> List.split in
+      let cs = same_type ts @ List.flatten cs in
+      (TyList (List.hd ts), cs)
+  | VTuple vs ->
+      let ts, cs = vs |> List.map value |> List.split in
+      (TyTuple ts, List.flatten cs)
   | VFun _ | VRFun _ -> failwith "unreachable"
 
-and binary op e1 e2 =
+and binary tyenv op e1 e2 =
   match op with
-  | OpAdd | OpSub | OpMul | OpDiv | OpMod -> same_type expr [ e1; e2 ] --> TyInt
+  | OpAdd | OpSub | OpMul | OpDiv | OpMod ->
+      let t1, c1 = expr tyenv e1 in
+      let t2, c2 = expr tyenv e2 in
+      (TyInt, ((t1, TyInt) :: (t2, TyInt) :: c1) @ c2)
   | OpLT | OpLE | OpGT | OpGE ->
-      same_type expr [ e1; e2 ] --> TyInt &&& return TyBool
-  | OpAnd | OpOr -> same_type expr [ e1; e2 ] --> TyBool
-  | OpEQ | OpNE -> same_type expr [ e1; e2 ] &&& return TyBool
+      let t1, c1 = expr tyenv e1 in
+      let t2, c2 = expr tyenv e2 in
+      (TyBool, ((t1, TyInt) :: (t2, TyInt) :: c1) @ c2)
+  | OpAnd | OpOr ->
+      let t1, c1 = expr tyenv e1 in
+      let t2, c2 = expr tyenv e2 in
+      (TyBool, ((t1, TyBool) :: (t2, TyBool) :: c1) @ c2)
+  | OpEQ | OpNE ->
+      let t1, c1 = expr tyenv e1 in
+      let t2, c2 = expr tyenv e2 in
+      (TyBool, ((t1, t2) :: c1) @ c2)
   | OpCons ->
-      let a = new_typevar () in
-      e1 ---> a &&& e2 ---> TyList a
+      let t1, c1 = expr tyenv e1 in
+      let t2, c2 = expr tyenv e2 in
+      (t2, ((t2, TyList t1) :: c1) @ c2)
 
-and var x tyenv =
-  try
-    let t = List.assoc x tyenv in
-    (t, [])
-  with _ -> raise (Exception.error ("unbound variable " ^ x))
-
-and let_rec lis e =
-  let typevars =
-    List.init (List.length lis) (fun _ ->
-        ( new_typevar () (* typevar of argument*),
-          new_typevar () (* typevar of result*) ))
+and let_rec tyenv lis e =
+  let ts =
+    List.init (List.length lis) (fun _ -> (new_typevar (), new_typevar ()))
   in
-  let with_constraints : combinator -> combinator =
-    List.fold_right2
-      (fun (a, r) (f, _, _) c -> (f, TyFun (a, r)) @>> c)
-      typevars lis
+  let tyenv' = List.map2 (fun (f, _, _) (a, r) -> (f, TyFun (a, r))) lis ts in
+  let tyenv = tyenv' @ tyenv in
+  let cs =
+    List.map2
+      (fun (_, x, e') (a, r) ->
+        let t, c = expr ((x, a) :: tyenv) e' in
+        (r, t) :: c)
+      lis ts
   in
+  let t, c = expr tyenv e in
+  (t, List.flatten (c :: cs))
 
-  List.fold_right2
-    (fun (a, r) (_, x, e') c -> (x, a) @>> with_constraints (e' ---> r) &&& c)
-    typevars lis
-    (with_constraints (expr e))
+and pattern : pattern -> ty * ty_env * ty_constraints = function
+  | PVar x ->
+      let xt = new_typevar () in
+      (xt, [ (x, xt) ], [])
+  | PInt _ -> (TyInt, [], [])
+  | PBool _ -> (TyBool, [], [])
+  | PNil -> (TyList (new_typevar ()), [], [])
+  | PCons (p1, p2) ->
+      let t1, env1, c1 = pattern p1 in
+      let t2, env2, c2 = pattern p2 in
+      (TyList t1, env2 @ env1, ((t2, TyList t1) :: c1) @ c2)
+  | PTuple ps ->
+      let rs = List.map pattern ps in
+      let ts, envs, cs =
+        List.fold_right
+          (fun (t, env, c) (ts, envs, cs) -> (t :: ts, env @ envs, c @ cs))
+          rs ([], [], [])
+      in
+      (TyTuple ts, envs, cs)
+
+and pattern_match tyenv e pats =
+  let et, ec = expr tyenv e in
+  let pts, pcs =
+    pats
+    |> List.map (fun (p, e') ->
+           let pt, penv, pc = pattern p in
+           let e't, e'c = expr (penv @ tyenv) e' in
+           (e't, ((pt, et) :: pc) @ e'c))
+    |> List.split
+  in
+  (List.hd pts, same_type pts @ List.flatten pcs @ ec)
