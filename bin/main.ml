@@ -8,4 +8,4 @@ let () =
     else Lexing.from_channel stdin
   in
 
-  Command.loop filemode lexbuf [] []
+  Command.loop filemode lexbuf [] (Env [])

@@ -1,6 +1,19 @@
 open Syntax
 open Exception
 
+type binding = name * env value
+and env = Env of binding list
+
+let add_binding (Env env) (b : binding) = Env (b :: env)
+
+let add_recfunction (Env env) fs =
+  let lis : binding list =
+    List.mapi (fun i (f, _, _) -> (f, VRFun (i, fs, Env env))) fs
+  in
+  Env (lis @ env)
+
+type value = env Syntax.value
+
 let get_int = function VInt x -> x | _ -> eval_error "int value is required"
 
 let get_bool = function
@@ -17,22 +30,18 @@ let vbool x = VBool x
 let calc_bin getter constructor op v1 v2 =
   constructor (op (getter v1) (getter v2))
 
-let int_bin = calc_bin get_int vint
-let intcmp_bin = calc_bin get_int vbool
-let bool_bin = calc_bin get_bool vbool
+let int_bin op x y = calc_bin get_int vint op x y
+let intcmp_bin op x y = calc_bin get_int vbool op x y
+let bool_bin op x y = calc_bin get_bool vbool op x y
 
-let add_recfunction env fs =
-  let lis = List.mapi (fun i (f, _, _) -> (f, VRFun (i, fs, env))) fs in
-  lis @ env
-
-let rec eval (env : env) (e : expr) : value =
+let rec eval (env : env) (e : env expr) : value =
   match e with
   | EValue v -> v
   | EUnary (op, e1) -> (
       match op with
       | OpInv ->
           let v1 = get_int (eval env e1) in
-          VInt (-v1))
+          vint (-v1))
   | EBin (op, e1, e2) -> (
       let v1 = eval env e1 in
       let v2 = eval env e2 in
@@ -51,37 +60,42 @@ let rec eval (env : env) (e : expr) : value =
       | OpCons ->
           let lis = get_list v2 in
           VList (v1 :: lis)
-      | OpEQ -> VBool (v1 = v2)
-      | OpNE -> VBool (v1 <> v2))
+      | OpEQ -> vbool (v1 = v2)
+      | OpNE -> vbool (v1 <> v2))
   | ENil -> VList []
   | ETuple t -> VTuple (List.map (eval env) t)
   | EIf (cond, et, ef) ->
       let c = get_bool (eval env cond) in
       if c then eval env et else eval env ef
   | EVar x -> (
-      try List.assoc x env with _ -> eval_error ("Unbound value " ^ x))
+      match env with
+      | Env env -> (
+          try List.assoc x env with _ -> eval_error ("Unbound value " ^ x)))
   | ELet (x, e1, e2) ->
       let v1 = eval env e1 in
-      eval ((x, v1) :: env) e2
+      eval (add_binding env (x, v1)) e2
   | ERLet (fs, e') -> eval (add_recfunction env fs) e'
   | EAbs (x, e) -> VFun (x, e, env)
   | EApp (e1, e2) -> (
       let fv = eval env e1 in
       let v = eval env e2 in
       match fv with
-      | VFun (x, e', env') -> eval ((x, v) :: env') e'
+      | VFun (x, e', env') -> eval (add_binding env' (x, v)) e'
       | VRFun (i, fs, env') ->
           let _, x, e' = List.nth fs i in
-          eval ((x, v) :: add_recfunction env' fs) e'
+          let env'' = add_binding (add_recfunction env' fs) (x, v) in
+          eval env'' e'
       | _ -> eval_error "application to a non-function")
   | EMatch (e', branches) -> evalMatch env (eval env e') branches
+
+and merge env1 (Env env2) = Env (env1 @ env2)
 
 and evalMatch env v = function
   | [] -> eval_error "pattern match failed"
   | (pat, e) :: t -> (
       match checkPattern pat v with
       | None -> evalMatch env v t
-      | Some env' -> eval (env' @ env) e)
+      | Some env' -> eval (merge env' env) e)
 
 and checkPattern pat v =
   match (pat, v) with

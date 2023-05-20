@@ -61,8 +61,8 @@ let rec abs e = function
 %left ADD SUB 
 %left MUL DIV MOD
 
-%start<Syntax.command option> parse_command
-%start<Syntax.value> parse_value
+%start<Eval_name.env Syntax.command option> parse_command
+%start<Eval_name.env Syntax.value> parse_value
 %% 
 
 parse_command : 
@@ -153,7 +153,7 @@ parse_value :
 ;
 
 value : 
-    INT { VInt($1) }
+|   INT { VInt($1) }
 |   SUB INT { VInt(- $2) }
 |   BOOL { VBool($1) }
 |   LSQUARE separated_list(SEMI, value) RSQUARE { VList($2) }

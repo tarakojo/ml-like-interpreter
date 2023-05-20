@@ -1,13 +1,12 @@
 type name = string
-and env = (name * value) list
 
-and value =
+and 'env value =
   | VInt of int
   | VBool of bool
-  | VFun of name * expr * env
-  | VRFun of int * (name * name * expr) list * env
-  | VList of value list
-  | VTuple of value list
+  | VFun of name * 'env expr * 'env
+  | VRFun of int * (name * name * 'env expr) list * 'env
+  | VList of 'env value list
+  | VTuple of 'env value list
 
 and unary_op = OpInv
 
@@ -27,19 +26,19 @@ and binary_op =
   | OpEQ
   | OpNE
 
-and expr =
-  | EValue of value
-  | EUnary of unary_op * expr
-  | EBin of binary_op * expr * expr
+and 'env expr =
+  | EValue of 'env value
+  | EUnary of unary_op * 'env expr
+  | EBin of binary_op * 'env expr * 'env expr
   | ENil
-  | ETuple of expr list
-  | EIf of expr * expr * expr
+  | ETuple of 'env expr list
+  | EIf of 'env expr * 'env expr * 'env expr
   | EVar of name
-  | ELet of name * expr * expr
-  | ERLet of (name * name * expr) list * expr
-  | EAbs of name * expr
-  | EApp of expr * expr
-  | EMatch of expr * (pattern * expr) list
+  | ELet of name * 'env expr * 'env expr
+  | ERLet of (name * name * 'env expr) list * 'env expr
+  | EAbs of name * 'env expr
+  | EApp of 'env expr * 'env expr
+  | EMatch of 'env expr * (pattern * 'env expr) list
 
 and pattern =
   | PVar of name
@@ -49,11 +48,11 @@ and pattern =
   | PCons of pattern * pattern
   | PTuple of pattern list
 
-type command =
-  | CExp of expr
-  | CLet of name * expr
-  | CRLet of (name * name * expr) list
-  | CTest of expr * value
+type 'env command =
+  | CExp of 'env expr
+  | CLet of name * 'env expr
+  | CRLet of (name * name * 'env expr) list
+  | CTest of 'env expr * 'env value
 
 type ty =
   | TyInt
