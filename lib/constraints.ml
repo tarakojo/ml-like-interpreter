@@ -61,7 +61,7 @@ and value = function
   | VTuple vs ->
       let ts, cs = vs |> List.map value |> List.split in
       (TyTuple ts, List.flatten cs)
-  | VFun _ | VRFun _ -> failwith "unreachable"
+  | VFun _ | VRFun _ -> assert false
 
 and binary tyenv op e1 e2 =
   match op with
