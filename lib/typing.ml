@@ -4,6 +4,7 @@ type ty_subst = (name * ty) list
 type ty_env = (name * ty) list
 
 let rec subst ((v, t) as s) = function
+  | TyUnit -> TyUnit
   | TyInt -> TyInt
   | TyBool -> TyBool
   | TyFun (x, y) -> TyFun (subst s x, subst s y)

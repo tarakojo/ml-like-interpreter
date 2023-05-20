@@ -16,6 +16,7 @@ let concat head delim tail lis =
   Buffer.contents buf
 
 let rec string_of_value = function
+  | VUnit -> "()"
   | VInt x -> string_of_int x
   | VBool x -> string_of_bool x
   | VFun _ -> "function"
@@ -26,6 +27,7 @@ let rec string_of_value = function
 let print_value v = v |> string_of_value |> print_string
 
 let rec string_of_type = function
+  | TyUnit -> "unit"
   | TyInt -> "int"
   | TyBool -> "bool"
   | TyFun (x, y) -> "(" ^ string_of_type x ^ " -> " ^ string_of_type y ^ ")"

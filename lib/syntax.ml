@@ -1,6 +1,7 @@
 type name = string
 
 and 'env value =
+  | VUnit 
   | VInt of int
   | VBool of bool
   | VFun of name * 'env expr * 'env
@@ -55,6 +56,7 @@ type 'env command =
   | CTest of 'env expr * 'env value
 
 type ty =
+  | TyUnit 
   | TyInt
   | TyBool
   | TyFun of ty * ty

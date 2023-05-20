@@ -52,6 +52,7 @@ let rec expr (tyenv : ty_env) : 'env expr -> ty * ty_constraints = function
   | EMatch (e, pats) -> pattern_match tyenv e pats
 
 and value = function
+  | VUnit -> (TyUnit, [])
   | VInt _ -> (TyInt, [])
   | VBool _ -> (TyBool, [])
   | VList vs ->

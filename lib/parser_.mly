@@ -106,7 +106,8 @@ expr2 :
 |   expr3 { $1 }
 ;
 expr3 : 
-    LPAREN expression RPAREN { $2 }
+    LPAREN RPAREN { EValue(VUnit) }
+|   LPAREN expression RPAREN { $2 }
 |   tuple(expression) { ETuple($1) }
 |   LSQUARE separated_list(SEMI, expression) RSQUARE {
         list_to_nilcons ENil (fun h t -> EBin(OpCons, h, t)) $2 
@@ -130,6 +131,7 @@ pattern :
 |   LSQUARE separated_list(SEMI, pattern) RSQUARE { list_to_nilcons PNil (fun h t -> PCons(h, t)) $2 }
 |   tuple(pattern) { PTuple ($1) }
 ;
+
 let_binding: 
     LET nonempty_list(LOWER_IDENT) EQ expression { (List.hd $2, abs $4 (List.tl $2)) }
 ;
@@ -153,6 +155,7 @@ parse_value :
 ;
 
 value : 
+|   LPAREN RPAREN { VUnit }
 |   INT { VInt($1) }
 |   SUB INT { VInt(- $2) }
 |   BOOL { VBool($1) }
