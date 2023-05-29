@@ -17,6 +17,7 @@ let add_recfunction (Env env) fs =
   in
   Env (lis @ env)
 
+(* thunk -> value *)
 let rec eval (env : env) (e : expr) : value =
   match e with
   | EValue v -> v
@@ -70,4 +71,4 @@ let rec eval (env : env) (e : expr) : value =
           let env'' = add_binding (add_recfunction env' fs) (x, (env, e2)) in
           eval env'' e'
       | _ -> eval_error "application to a non-function")
-  | EMatch _ -> failwith "undefined"
+  | EMatch _ -> assert false
