@@ -13,7 +13,7 @@ let rec same_type = function
   | x1 :: (x2 :: _ as tl) -> (x1, x2) :: same_type tl
   | _ -> []
 
-let rec expr (tyenv : ty_env) : 'env expr -> ty * ty_constraints = function
+let rec expr (tyenv : ty_env) : expr -> ty * ty_constraints = function
   | EValue v -> value v
   | EUnary (op, e) -> (
       match op with

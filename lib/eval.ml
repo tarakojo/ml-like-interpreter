@@ -1,18 +1,13 @@
 open Syntax
 open Exception
 
-type binding = name * env value
-and env = Env of binding list
+let add_binding env (b : binding) = (b :: env)
 
-let add_binding (Env env) (b : binding) = Env (b :: env)
-
-let add_recfunction (Env env) fs =
+let add_recfunction env fs =
   let lis : binding list =
-    List.mapi (fun i (f, _, _) -> (f, VRFun (i, fs, Env env))) fs
+    List.mapi (fun i (f, _, _) -> (f, VRFun (i, fs, env))) fs
   in
-  Env (lis @ env)
-
-type value = env Syntax.value
+ (lis @ env)
 
 let get_int = function VInt x -> x | _ -> eval_error "int value is required"
 
@@ -34,7 +29,7 @@ let int_bin op x y = calc_bin get_int vint op x y
 let intcmp_bin op x y = calc_bin get_int vbool op x y
 let bool_bin op x y = calc_bin get_bool vbool op x y
 
-let rec eval (env : env) (e : env expr) : value =
+let rec eval (env : env) (e : expr) : value =
   match e with
   | EValue v -> v
   | EUnary (op, e1) -> (
@@ -69,7 +64,7 @@ let rec eval (env : env) (e : env expr) : value =
       if c then eval env et else eval env ef
   | EVar x -> (
       match env with
-      | Env env -> (
+      | env -> (
           try List.assoc x env with _ -> eval_error ("Unbound value " ^ x)))
   | ELet (x, e1, e2) ->
       let v1 = eval env e1 in
@@ -88,7 +83,7 @@ let rec eval (env : env) (e : env expr) : value =
       | _ -> eval_error "application to a non-function")
   | EMatch (e', branches) -> evalMatch env (eval env e') branches
 
-and merge env1 (Env env2) = Env (env1 @ env2)
+and merge env1 env2 = (env1 @ env2)
 
 and evalMatch env v = function
   | [] -> eval_error "pattern match failed"
