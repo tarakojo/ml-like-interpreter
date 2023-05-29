@@ -13,8 +13,10 @@ let rec same_type = function
   | x1 :: (x2 :: _ as tl) -> (x1, x2) :: same_type tl
   | _ -> []
 
-let rec expr (tyenv : ty_env) : 'env expr -> ty * ty_constraints = function
-  | EValue v -> value v
+let rec expr (tyenv : ty_env) : expr -> ty * ty_constraints = function
+  | EUnit -> (TyUnit, [])
+  | EInt _ -> (TyInt, [])
+  | EBool _ -> (TyBool, [])
   | EUnary (op, e) -> (
       match op with
       | OpInv ->
@@ -50,19 +52,6 @@ let rec expr (tyenv : ty_env) : 'env expr -> ty * ty_constraints = function
       let rt = new_typevar () in
       (rt, ((t1, TyFun (t2, rt)) :: c1) @ c2)
   | EMatch (e, pats) -> pattern_match tyenv e pats
-
-and value = function
-  | VUnit -> (TyUnit, [])
-  | VInt _ -> (TyInt, [])
-  | VBool _ -> (TyBool, [])
-  | VList vs ->
-      let ts, cs = vs |> List.map value |> List.split in
-      let cs = same_type ts @ List.flatten cs in
-      (TyList (List.hd ts), cs)
-  | VTuple vs ->
-      let ts, cs = vs |> List.map value |> List.split in
-      (TyTuple ts, List.flatten cs)
-  | VFun _ | VRFun _ -> failwith "unreachable"
 
 and binary tyenv op e1 e2 =
   match op with
@@ -107,6 +96,7 @@ and pattern : pattern -> ty * ty_env * ty_constraints = function
   | PVar x ->
       let xt = new_typevar () in
       (xt, [ (x, xt) ], [])
+  | PUnit -> (TyUnit, [], [])
   | PInt _ -> (TyInt, [], [])
   | PBool _ -> (TyBool, [], [])
   | PNil -> (TyList (new_typevar ()), [], [])

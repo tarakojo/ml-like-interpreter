@@ -1,4 +1,4 @@
-open Syntax
+(*open Syntax
 open Exception
 
 type env = Env of binding list
@@ -72,3 +72,4 @@ let rec eval (env : env) (e : expr) : value =
           eval env'' e'
       | _ -> eval_error "application to a non-function")
   | EMatch _ -> assert false
+*)

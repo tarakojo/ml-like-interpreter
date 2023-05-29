@@ -16,13 +16,14 @@ let concat head delim tail lis =
   Buffer.contents buf
 
 let rec string_of_value = function
-  | VUnit -> "()"
-  | VInt x -> string_of_int x
-  | VBool x -> string_of_bool x
-  | VFun _ -> "function"
-  | VRFun _ -> "rec function"
-  | VList lis -> concat "[" ";" "]" (List.map string_of_value lis)
-  | VTuple lis -> concat "(" "," ")" (List.map string_of_value lis)
+  | VV VUnit -> "()"
+  | VV (VInt x) -> string_of_int x
+  | VV (VBool x) -> string_of_bool x
+  | VV (VFun _) -> "function"
+  | VV (VRFun _) -> "rec function"
+  | VV VNil -> "[]"
+  | VV (VCons (x, y)) -> "(" ^ string_of_value x ^ ") :: " ^ string_of_value y
+  | VV (VTuple lis) -> concat "(" "," ")" (List.map string_of_value lis)
 
 let print_value v = v |> string_of_value |> print_string
 

@@ -61,8 +61,8 @@ let rec abs e = function
 %left ADD SUB 
 %left MUL DIV MOD
 
-%start<Eval_name.env Syntax.command option> parse_command
-%start<Eval_name.env Syntax.value> parse_value
+%start<Syntax.command option> parse_command
+%start<Syntax.value_v> parse_value
 %% 
 
 parse_command : 
@@ -106,15 +106,15 @@ expr2 :
 |   expr3 { $1 }
 ;
 expr3 : 
-    LPAREN RPAREN { EValue(VUnit) }
+    LPAREN RPAREN { EUnit }
+|   INT { EInt($1) }
+|   BOOL { EBool($1) }
+|   LOWER_IDENT { EVar ($1) }
 |   LPAREN expression RPAREN { $2 }
 |   tuple(expression) { ETuple($1) }
 |   LSQUARE separated_list(SEMI, expression) RSQUARE {
         list_to_nilcons ENil (fun h t -> EBin(OpCons, h, t)) $2 
     }
-|   INT { EValue(VInt($1)) }
-|   BOOL { EValue(VBool($1)) }
-|   LOWER_IDENT { EVar ($1) }
 ;
 match_branch : 
     pattern RIGHT_ARROW expression { 
@@ -123,7 +123,8 @@ match_branch :
     }
 ;
 pattern : 
-    INT  { PInt ($1) }
+    LPAREN RPAREN { PUnit }
+|   INT  { PInt ($1) }
 |   BOOL { PBool ($1) }
 |   LOWER_IDENT { PVar ($1) }
 |   LPAREN pattern RPAREN { $2 }
@@ -155,12 +156,12 @@ parse_value :
 ;
 
 value : 
-|   LPAREN RPAREN { VUnit }
-|   INT { VInt($1) }
-|   SUB INT { VInt(- $2) }
-|   BOOL { VBool($1) }
-|   LSQUARE separated_list(SEMI, value) RSQUARE { VList($2) }
-|   tuple(value) { VTuple($1) }
+|   LPAREN RPAREN { VV VUnit }
+|   INT { VV (VInt($1)) }
+|   SUB INT { VV (VInt(- $2)) }
+|   BOOL { VV (VBool($1)) }
+|   LSQUARE separated_list(SEMI, value) RSQUARE { list_to_nilcons (VV VNil) (fun x y -> VV (VCons(x,y))) ($2) }
+|   tuple(value) { VV (VTuple($1)) }
 ;
 
 %public tuple(X):

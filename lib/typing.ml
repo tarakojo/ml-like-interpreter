@@ -22,7 +22,7 @@ let rec check_noncyclic_subst v = function
   | TyList x -> check_noncyclic_subst v x
   | _ -> ()
 
-let rec unify : Constraints.ty_constraints -> ty_subst =  function
+let rec unify : Constraints.ty_constraints -> ty_subst = function
   | [] -> []
   | (x, y) :: tl when x = y -> unify tl
   | (TyFun (x1, x2), TyFun (y1, y2)) :: tl -> unify ((x1, y1) :: (x2, y2) :: tl)
@@ -42,32 +42,8 @@ let unify c =
   List.fold_right compose (unify c) []
 
 let infer_expr tyenv e =
-  let t, c = Constraints.expr tyenv e  in
+  let t, c = Constraints.expr tyenv e in
   let s = unify c in
   let t' = subst s t in
   let tyenv' = List.map (fun (x, y) -> (x, subst s y)) tyenv in
   (t', tyenv')
-(*
-let infer_command tyenv c =
-  match c with
-  | CExp e ->
-      let t, tyenv' = infer_expr tyenv e in
-      (Some t, diff tyenv tyenv', tyenv')
-  | CLet (x, e) ->
-      let t, tyenv' = infer_expr tyenv e in
-      let tyenv' = (x, t) :: tyenv' in
-      (None, diff tyenv tyenv', tyenv')
-  | CRLet lis ->
-      let e = ERLet (lis, ETuple (List.map (fun (f, _, _) -> EVar f) lis)) in
-      let t, tyenv' = infer_expr tyenv e in
-      let vartypes =
-        match t with
-        | TyTuple ts -> List.map2 (fun (f, _, _) ft -> (f, ft)) lis ts
-        | _ -> failwith "unreachable"
-      in
-      let typenv' = vartypes @ tyenv' in
-      (None, diff tyenv typenv', tyenv')
-  | CTest (e, _) ->
-      let _, tyenv' = infer_expr tyenv e in
-      (None, diff tyenv tyenv', tyenv')
-*)

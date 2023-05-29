@@ -1,14 +1,24 @@
 type name = string
+and 'a binding = name * 'a
+and 'a env = 'a binding list
 
-and 'env value =
-  | VUnit 
+and ('thunk, 'env) value =
+  | VUnit
   | VInt of int
   | VBool of bool
-  | VFun of name * 'env expr * 'env
-  | VRFun of int * (name * name * 'env expr) list * 'env
-  | VList of 'env value list
-  | VTuple of 'env value list
+  | VFun of name * expr * 'env
+  | VRFun of int * (name * name * expr) list * 'env
+  | VNil
+  | VCons of 'thunk * 'thunk
+  | VTuple of 'thunk list
 
+and value_v = VV of (value_v, env_v) value
+and env_v = value_v env
+and thunk = T of expr * thunk env
+and value_n = VN of (thunk, env_n) value
+and env_n = thunk env
+
+(**)
 and unary_op = OpInv
 
 and binary_op =
@@ -27,36 +37,39 @@ and binary_op =
   | OpEQ
   | OpNE
 
-and 'env expr =
-  | EValue of 'env value
-  | EUnary of unary_op * 'env expr
-  | EBin of binary_op * 'env expr * 'env expr
+and expr =
+  | EUnit
+  | EInt of int
+  | EBool of bool
+  | EUnary of unary_op * expr
+  | EBin of binary_op * expr * expr
   | ENil
-  | ETuple of 'env expr list
-  | EIf of 'env expr * 'env expr * 'env expr
+  | ETuple of expr list
+  | EIf of expr * expr * expr
   | EVar of name
-  | ELet of name * 'env expr * 'env expr
-  | ERLet of (name * name * 'env expr) list * 'env expr
-  | EAbs of name * 'env expr
-  | EApp of 'env expr * 'env expr
-  | EMatch of 'env expr * (pattern * 'env expr) list
+  | ELet of name * expr * expr
+  | ERLet of (name * name * expr) list * expr
+  | EAbs of name * expr
+  | EApp of expr * expr
+  | EMatch of expr * (pattern * expr) list
 
 and pattern =
   | PVar of name
+  | PUnit
   | PInt of int
   | PBool of bool
   | PNil
   | PCons of pattern * pattern
   | PTuple of pattern list
 
-type 'env command =
-  | CExp of 'env expr
-  | CLet of name * 'env expr
-  | CRLet of (name * name * 'env expr) list
-  | CTest of 'env expr * 'env value
+type command =
+  | CExp of expr
+  | CLet of name * expr
+  | CRLet of (name * name * expr) list
+  | CTest of expr * value_v
 
 type ty =
-  | TyUnit 
+  | TyUnit
   | TyInt
   | TyBool
   | TyFun of ty * ty
