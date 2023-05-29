@@ -1,25 +1,22 @@
 type name = string
-and 'a binding = name * 'a
-and 'a env = 'a binding list
+and binding = BRec of expr * (name * expr) list * env | BNonRec of thunk
+and thunk = env * expr
+and env = (name * binding) list
 
-and ('thunk, 'env) value =
+and 't value' =
   | VUnit
   | VInt of int
   | VBool of bool
-  | VFun of name * expr * 'env
-  | VRFun of int * (name * name * expr) list * 'env
+  | VFun of name * expr * env
   | VNil
-  | VCons of 'thunk * 'thunk
-  | VTuple of 'thunk list
+  | VCons of 't * 't
+  | VTuple of 't list
 
-and value_v = VV of (value_v, env_v) value
-and env_v = value_v env
-and thunk = T of expr * thunk env
-and value_n = VN of (thunk, env_n) value
-and env_n = thunk env
+and value = thunk value'
+and strict_value = SV of strict_value value'
 
 (**)
-and unary_op = OpInv
+and unary_op = OpInv | OpNot
 
 and binary_op =
   | OpAdd
@@ -31,9 +28,6 @@ and binary_op =
   | OpLE
   | OpGT
   | OpGE
-  | OpAnd
-  | OpOr
-  | OpCons
   | OpEQ
   | OpNE
 
@@ -43,12 +37,15 @@ and expr =
   | EBool of bool
   | EUnary of unary_op * expr
   | EBin of binary_op * expr * expr
+  | EAnd of expr * expr
+  | EOr of expr * expr
   | ENil
+  | ECons of expr * expr
   | ETuple of expr list
   | EIf of expr * expr * expr
   | EVar of name
   | ELet of name * expr * expr
-  | ERLet of (name * name * expr) list * expr
+  | ERLet of (name * expr) list * expr
   | EAbs of name * expr
   | EApp of expr * expr
   | EMatch of expr * (pattern * expr) list
@@ -65,8 +62,7 @@ and pattern =
 type command =
   | CExp of expr
   | CLet of name * expr
-  | CRLet of (name * name * expr) list
-  | CTest of expr * value_v
+  | CRLet of (name * expr) list
 
 type ty =
   | TyUnit

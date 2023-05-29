@@ -46,7 +46,7 @@ let rec abs e = function
 %token TEST
 %token ADD SUB MUL DIV MOD
 %token EQ NE LT LE GT GE 
-%token BAND BOR 
+%token BAND BOR BNOT
 %token IF THEN ELSE 
 %token LET REC AND IN
 %token FUN RIGHT_ARROW
@@ -62,7 +62,7 @@ let rec abs e = function
 %left MUL DIV MOD
 
 %start<Syntax.command option> parse_command
-%start<Syntax.value_v> parse_value
+
 %% 
 
 parse_command : 
@@ -73,10 +73,10 @@ command :
     expression { CExp ($1) }
 |   let_binding { CLet(fst $1, snd $1) }
 |   letrec_binding { CRLet($1) }
-|   expression TEST value { CTest($1, $3) }
 ;
 expression : 
 |   SUB expression { EUnary(OpInv, $2) }
+|   BNOT expression { EUnary(OpNot, $2) }
 |   IF expression THEN expression ELSE expression { EIf ($2, $4, $6) }
 |   let_binding IN expression { ELet(fst $1, snd $1, $3) }
 |   letrec_binding IN expression { ERLet($1, $3) }
@@ -96,9 +96,9 @@ expr1 :
 |   expr1 LE expr1 { EBin (OpLE, $1, $3) }
 |   expr1 GT expr1 { EBin (OpGT, $1, $3) }
 |   expr1 GE expr1 { EBin (OpGE, $1, $3) }
-|   expr1 BAND expr1 { EBin (OpAnd, $1, $3) }
-|   expr1 BOR expr1 { EBin (OpOr, $1, $3) }
-|   expr1 DOUBLE_COLON expr1 { EBin (OpCons, $1, $3) }
+|   expr1 BAND expr1 { EAnd ($1, $3) }
+|   expr1 BOR expr1 { EOr ($1, $3) }
+|   expr1 DOUBLE_COLON expr1 { ECons ($1, $3) }
 |   expr2 { $1 }
 ;
 expr2 : 
@@ -113,7 +113,7 @@ expr3 :
 |   LPAREN expression RPAREN { $2 }
 |   tuple(expression) { ETuple($1) }
 |   LSQUARE separated_list(SEMI, expression) RSQUARE {
-        list_to_nilcons ENil (fun h t -> EBin(OpCons, h, t)) $2 
+        list_to_nilcons ENil (fun h t -> ECons( h, t)) $2 
     }
 ;
 match_branch : 
@@ -138,7 +138,7 @@ let_binding:
 ;
 letrec_binding : 
     letrec_binding_1 {
-        let names = List.map (fun (f, _, _) -> f) $1 in 
+        let names = List.map (fun (x, _) -> x) $1 in 
         assert_unique_names names; 
         $1
     }
@@ -148,21 +148,10 @@ letrec_binding_1 :
 |   letrec_binding_1 AND letrec_binding_2 { $3 :: $1 }
 ;
 letrec_binding_2 : 
-    LOWER_IDENT nonempty_list(LOWER_IDENT) EQ expression { ($1, List.hd $2, abs $4 (List.tl $2)) }
+    nonempty_list(LOWER_IDENT) EQ expression { (List.hd $1, abs $3 (List.tl $1)) }
 ;
 
-parse_value :
-    value { $1 }
-;
 
-value : 
-|   LPAREN RPAREN { VV VUnit }
-|   INT { VV (VInt($1)) }
-|   SUB INT { VV (VInt(- $2)) }
-|   BOOL { VV (VBool($1)) }
-|   LSQUARE separated_list(SEMI, value) RSQUARE { list_to_nilcons (VV VNil) (fun x y -> VV (VCons(x,y))) ($2) }
-|   tuple(value) { VV (VTuple($1)) }
-;
 
 %public tuple(X):
     LPAREN X COMMA separated_nonempty_list (COMMA, X) RPAREN { $2 :: $4 }

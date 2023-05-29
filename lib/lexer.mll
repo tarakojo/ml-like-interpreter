@@ -40,6 +40,7 @@ rule tokenize = parse
 |   ">=" {GE}
 |   "&&" {BAND}
 |   "||" {BOR}
+|   "!" {BNOT}
 |   "if" {IF}
 |   "then" {THEN}
 |   "else" {ELSE}

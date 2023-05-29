@@ -21,9 +21,20 @@ let rec expr (tyenv : ty_env) : expr -> ty * ty_constraints = function
       match op with
       | OpInv ->
           let t, c = expr tyenv e in
-          (TyInt, (t, TyInt) :: c))
+          (TyInt, (t, TyInt) :: c)
+      | OpNot ->
+          let t, c = expr tyenv e in
+          (TyBool, (t, TyBool) :: c))
   | EBin (op, e1, e2) -> binary tyenv op e1 e2
+  | EAnd (e1, e2) | EOr (e1, e2) ->
+      let t1, c1 = expr tyenv e1 in
+      let t2, c2 = expr tyenv e2 in
+      (TyBool, ((t1, TyBool) :: (t2, TyBool) :: c1) @ c2)
   | ENil -> (TyList (new_typevar ()), [])
+  | ECons (e1, e2) ->
+      let t1, c1 = expr tyenv e1 in
+      let t2, c2 = expr tyenv e2 in
+      (t2, ((t2, TyList t1) :: c1) @ c2)
   | ETuple es ->
       let ts, cs = es |> List.map (expr tyenv) |> List.split in
       (TyTuple ts, List.flatten cs)
@@ -63,30 +74,20 @@ and binary tyenv op e1 e2 =
       let t1, c1 = expr tyenv e1 in
       let t2, c2 = expr tyenv e2 in
       (TyBool, ((t1, TyInt) :: (t2, TyInt) :: c1) @ c2)
-  | OpAnd | OpOr ->
-      let t1, c1 = expr tyenv e1 in
-      let t2, c2 = expr tyenv e2 in
-      (TyBool, ((t1, TyBool) :: (t2, TyBool) :: c1) @ c2)
   | OpEQ | OpNE ->
       let t1, c1 = expr tyenv e1 in
       let t2, c2 = expr tyenv e2 in
       (TyBool, ((t1, t2) :: c1) @ c2)
-  | OpCons ->
-      let t1, c1 = expr tyenv e1 in
-      let t2, c2 = expr tyenv e2 in
-      (t2, ((t2, TyList t1) :: c1) @ c2)
 
 and let_rec tyenv lis e =
-  let ts =
-    List.init (List.length lis) (fun _ -> (new_typevar (), new_typevar ()))
-  in
-  let tyenv' = List.map2 (fun (f, _, _) (a, r) -> (f, TyFun (a, r))) lis ts in
+  let ts = List.init (List.length lis) (fun _ -> new_typevar ()) in
+  let tyenv' = List.map2 (fun (x, _) a -> (x, a)) lis ts in
   let tyenv = tyenv' @ tyenv in
   let cs =
     List.map2
-      (fun (_, x, e') (a, r) ->
-        let t, c = expr ((x, a) :: tyenv) e' in
-        (r, t) :: c)
+      (fun (_, e) a ->
+        let t, c = expr tyenv e in
+        (a, t) :: c)
       lis ts
   in
   let t, c = expr tyenv e in

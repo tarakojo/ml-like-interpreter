@@ -5,23 +5,17 @@ let red = "\027[31m"
 let green = "\027[32m"
 let reset = "\027[0m"
 
-type ('a, 'value) step_arg = {
-  filemode : bool;
-  lexbuf : Lexing.lexbuf;
-  tyenv : ty_env;
-  env : 'a env;
-  add_binding : 'a env -> 'a binding -> 'a env;
-  add_recfunction : 'a env -> (name * name * expr) list -> 'a env;
-  eval : 'a env -> expr -> 'value;
-  eval_struct : 'value -> value_v;
-}
-
-type 'a step_res = Continue of ty_env * 'a env | Quit
+type step_res = Continue of ty_env * env | Quit
 
 let print_linenum (lexbuf : Lexing.lexbuf) =
   print_string "<<line : ";
   print_int lexbuf.lex_start_p.pos_lnum;
   print_string ">>"
+
+let string_of_type_suffix t = " : " ^ green ^ Print.string_of_type t ^ reset
+
+let print_cexp_result v t =
+  print_endline (" --> " ^ Print.string_of_value v ^ string_of_type_suffix t)
 
 let tyenv_update tyenv (x, t) = (x, t) :: List.remove_assoc x tyenv
 
@@ -34,48 +28,43 @@ let rec tyenv_diff prev = function
 
 let print_tyenv_diff tyenv tyenv' =
   List.iter
-    (fun (x, t) -> print_endline ("--" ^ x ^ " : " ^ Print.string_of_type t))
+    (fun (x, t) -> print_endline ("-- " ^ x ^ string_of_type_suffix t))
     (tyenv_diff tyenv tyenv')
 
-let step (arg : 'a step_arg) =
+let step filemode lexbuf tyenv env =
   try
-    let c = Parser.parse_command Lexer.tokenize arg.lexbuf in
+    let c = Parser.parse_command Lexer.tokenize lexbuf in
     match c with
     | None -> Quit
     | Some (CExp e) ->
-        let t, tyenv = Typing.infer_expr arg.tyenv e in
-        print_endline
-          ("<" ^ Print.string_of_type t ^ "> "
-          ^ Print.string_of_value (Eval_name.eval env e));
+        let t, tyenv = Typing.infer_expr tyenv e in
+        let v = (env, e) |> Eval.eval |> Eval.strict_eval in
+        print_cexp_result v t;
         Continue (tyenv, env)
     | Some (CLet (x, e)) ->
         let t, tyenv = infer_expr tyenv e in
         let tyenv = tyenv_update tyenv (x, t) in
-        (* let v = Eval_name.eval env e in
-           print_endline ("--" ^ x ^ " = " ^ Print.string_of_value v); *)
-        Continue (tyenv, Eval_name.add_binding env (x, (env, e)))
-    | Some (CRLet fs) ->
-        let e = ERLet (fs, ETuple (List.map (fun (f, _, _) -> EVar f) fs)) in
-        let t, tyenv = infer_expr tyenv e in
+        Continue (tyenv, (x, BNonRec (env, e)) :: env)
+    | Some (CRLet xs) ->
+        let dummy_e = ERLet (xs, ETuple (List.map (fun (x, _) -> EVar x) xs)) in
+        let dummy_t, tyenv = infer_expr tyenv dummy_e in
         let vartypes =
-          match t with
-          | TyTuple ts -> List.map2 (fun (f, _, _) ft -> (f, ft)) fs ts
-          | _ -> failwith "unreachable"
+          match dummy_t with
+          | TyTuple ts -> List.map2 (fun (x, _) xt -> (x, xt)) xs ts
+          | _ -> assert false
         in
         let tyenv = List.fold_left tyenv_update tyenv vartypes in
-        List.iter
-          (fun (f, _, _) -> print_endline ("--" ^ f ^ " = rec function"))
-          fs;
-        Continue (tyenv, Eval_name.add_recfunction env fs)
-    | Some (CTest (e, v)) ->
-        let _, tyenv = infer_expr tyenv e in
-        let r = Eval_name.eval env e in
-        if r = v then print_endline ("--" ^ green ^ "ok" ^ reset)
-        else (
-          print_string ("--" ^ red ^ "failed " ^ reset);
-          if filemode then print_linenum lexbuf;
-          print_endline (" the result was " ^ Print.string_of_value r));
-        Continue (tyenv, env)
+        let bs = List.map (fun (x, ex) -> (x, BRec (ex, xs, env))) xs in
+        Continue (tyenv, bs @ env)
+    (* | Some (CTest (e, v)) ->
+         let _, tyenv = infer_expr tyenv e in
+         let r = Eval.eval env e in
+         if r = v then print_endline ("--" ^ green ^ "ok" ^ reset)
+         else (
+           print_string ("--" ^ red ^ "failed " ^ reset);
+           if filemode then print_linenum lexbuf;
+           print_endline (" the result was " ^ Print.string_of_value r));
+         Continue (tyenv, env)*)
   with Exception.Error msg ->
     if filemode then (
       print_linenum lexbuf;
