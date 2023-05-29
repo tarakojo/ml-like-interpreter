@@ -7,15 +7,26 @@ let reset = "\027[0m"
 
 type step_res = Continue of ty_env * env | Quit
 
-let print_linenum (lexbuf : Lexing.lexbuf) =
-  print_string "<<line : ";
-  print_int lexbuf.lex_start_p.pos_lnum;
-  print_string ">>"
-
+let print_error_msg msg = print_endline (red ^ "error" ^ reset ^ " : " ^ msg)
 let string_of_type_suffix t = " : " ^ green ^ Print.string_of_type t ^ reset
 
 let print_cexp_result v t =
-  print_endline (" --> " ^ Print.string_of_value v ^ string_of_type_suffix t)
+  print_endline ("--> " ^ Print.string_of_value v ^ string_of_type_suffix t)
+
+let print_linenum (lexbuf : Lexing.lexbuf) =
+  print_string "<line : ";
+  print_int lexbuf.lex_start_p.pos_lnum;
+  print_string ">"
+
+let print_ctest_result filemode lexbuf correct given =
+  if correct = given then (
+    if filemode then print_linenum lexbuf;
+    print_endline (green ^ " ok" ^ reset))
+  else (
+    if filemode then print_linenum lexbuf;
+    print_endline
+      (red ^ " failed " ^ reset ^ "the result was "
+      ^ Print.string_of_value given))
 
 let tyenv_update tyenv (x, t) = (x, t) :: List.remove_assoc x tyenv
 
@@ -56,22 +67,18 @@ let step filemode lexbuf tyenv env =
         let tyenv = List.fold_left tyenv_update tyenv vartypes in
         let bs = List.map (fun (x, ex) -> (x, BRec (ex, xs, env))) xs in
         Continue (tyenv, bs @ env)
-    (* | Some (CTest (e, v)) ->
-         let _, tyenv = infer_expr tyenv e in
-         let r = Eval.eval env e in
-         if r = v then print_endline ("--" ^ green ^ "ok" ^ reset)
-         else (
-           print_string ("--" ^ red ^ "failed " ^ reset);
-           if filemode then print_linenum lexbuf;
-           print_endline (" the result was " ^ Print.string_of_value r));
-         Continue (tyenv, env)*)
+    | Some (CTest (e, v)) ->
+        let _, tyenv = infer_expr tyenv e in
+        let r = (env, e) |> Eval.eval |> Eval.strict_eval in
+        print_ctest_result filemode lexbuf v r;
+        Continue (tyenv, env)
   with Exception.Error msg ->
     if filemode then (
       print_linenum lexbuf;
-      print_endline msg;
+      print_error_msg msg;
       Quit)
     else (
-      print_endline msg;
+      print_error_msg msg;
       Lexing.flush_input lexbuf;
       Continue (tyenv, env))
 

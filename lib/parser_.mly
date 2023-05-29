@@ -73,6 +73,7 @@ command :
     expression { CExp ($1) }
 |   let_binding { CLet(fst $1, snd $1) }
 |   letrec_binding { CRLet($1) }
+|   expression TEST value { CTest($1, $3) }
 ;
 expression : 
 |   SUB expression { EUnary(OpInv, $2) }
@@ -151,7 +152,16 @@ letrec_binding_2 :
     nonempty_list(LOWER_IDENT) EQ expression { (List.hd $1, abs $3 (List.tl $1)) }
 ;
 
-
+value : 
+    LPAREN RPAREN { SV (VUnit) }
+|   INT { SV(VInt $1) }
+|   SUB INT { SV(VInt (- $2)) }
+|   BOOL { SV(VBool $1) }
+|   LSQUARE RSQUARE { SV(VNil) }
+|   LSQUARE separated_nonempty_list(SEMI, value) RSQUARE { list_to_nilcons (SV VNil) (fun x y -> SV (VCons(x, y))) $2 }
+|   value DOUBLE_COLON value { SV(VCons($1, $3)) }
+|   tuple(value) { SV(VTuple($1)) }
+;
 
 %public tuple(X):
     LPAREN X COMMA separated_nonempty_list (COMMA, X) RPAREN { $2 :: $4 }

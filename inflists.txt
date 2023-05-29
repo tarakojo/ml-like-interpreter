@@ -1,0 +1,88 @@
+
+
+
+let rec nth n lis = 
+    match lis with 
+    | h :: t -> if n = 0 then h else nth (n-1) t end ;;
+
+let rec ones = 1 :: ones ;;
+
+nth 0 ones;;
+nth 1 ones;;
+nth 2 ones;;
+nth 3 ones;;
+nth 4 ones;;
+
+
+let rec map f lis =
+    match lis with 
+    | [] -> []
+    | h :: t -> (f h) :: map f t 
+    end ;;
+
+let succ x = x + 1;;
+let rec nats = 0 :: (map succ nats);;
+
+nth 0 nats;;
+nth 1 nats;;
+nth 2 nats;;
+nth 3 nats;;
+nth 4 nats;;
+
+let rec fibadd lis = 
+    match lis with 
+    | [] -> [] 
+    | x :: [] -> []
+    | x :: y :: tl -> (x + y) :: fibadd (y :: tl)
+    end;;
+
+let rec fib = 1 :: 1 :: fibadd fib ;;
+
+let rec nth n lis = 
+    match lis with 
+    | h :: t -> if n = 0 then h else nth (n-1) t end ;;
+
+nth 0 fib;;
+nth 1 fib;;
+nth 2 fib;;
+nth 3 fib;;
+nth 4 fib;;
+nth 5 fib;;
+nth 6 fib;;
+nth 7 fib;;
+nth 8 fib;;
+nth 9 fib;;
+
+
+let rec slide_all xysum lis = 
+    match lis with 
+    | [] -> []
+    | (x, 0) :: tl -> (0, xysum + 1) :: slide_all (xysum + 1) tl 
+    | (x, y) :: tl -> (x + 1, y - 1) :: slide_all xysum tl 
+    end 
+;;
+
+let rec natpairs = (0, 0) :: slide_all 0 natpairs;;
+
+let rec nth n lis = 
+    match lis with 
+    | h :: t -> if n = 0 then h else nth (n-1) t end ;;
+
+nth 0 natpairs;;
+nth 1 natpairs;;
+nth 2 natpairs;;
+nth 3 natpairs;;
+nth 4 natpairs;;
+nth 5 natpairs;;
+nth 6 natpairs;;
+nth 7 natpairs;;
+nth 8 natpairs;;
+nth 9 natpairs;;
+nth 10 natpairs;;
+nth 11 natpairs;;
+nth 12 natpairs;;
+nth 13 natpairs;;
+nth 14 natpairs;;
+nth 15 natpairs;;
+nth 16 natpairs;;
+

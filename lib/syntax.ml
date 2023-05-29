@@ -63,6 +63,7 @@ type command =
   | CExp of expr
   | CLet of name * expr
   | CRLet of (name * expr) list
+  | CTest of expr * strict_value
 
 type ty =
   | TyUnit
