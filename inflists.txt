@@ -38,6 +38,14 @@ let rec fibadd lis =
 
 let rec fib = 1 :: 1 :: fibadd fib ;;
 
+let tl lis = match lis with h :: tl -> tl end ;;
+let rec addall l1 l2 = 
+    match (l1, l2) with 
+    | (h1 :: t1, h2 :: t2) -> (h1 + h2) :: addall t1 t2 end;;
+
+let rec fib2 = 1 :: 1 :: addall fib (tl fib);;
+
+
 let rec nth n lis = 
     match lis with 
     | h :: t -> if n = 0 then h else nth (n-1) t end ;;
@@ -53,16 +61,27 @@ nth 7 fib;;
 nth 8 fib;;
 nth 9 fib;;
 
+nth 0 fib2;;
+nth 1 fib2;;
+nth 2 fib2;;
+nth 3 fib2;;
+nth 4 fib2;;
+nth 5 fib2;;
+nth 6 fib2;;
+nth 7 fib2;;
+nth 8 fib2;;
+nth 9 fib2;;
 
-let rec slide_all xysum lis = 
+
+let rec slide_all lis = 
     match lis with 
     | [] -> []
-    | (x, 0) :: tl -> (0, xysum + 1) :: slide_all (xysum + 1) tl 
-    | (x, y) :: tl -> (x + 1, y - 1) :: slide_all xysum tl 
+    | (x, 0) :: tl -> (0, x + 1) :: slide_all tl 
+    | (x, y) :: tl -> (x + 1, y - 1) :: slide_all tl 
     end 
 ;;
 
-let rec natpairs = (0, 0) :: slide_all 0 natpairs;;
+let rec natpairs = (0, 0) :: slide_all natpairs;;
 
 let rec nth n lis = 
     match lis with 
